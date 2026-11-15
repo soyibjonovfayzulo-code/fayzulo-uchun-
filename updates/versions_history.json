@@ -8,17 +8,17 @@
     "pck_filename": "patch_0_5_2_501.pck",
     "pck_url": "https://github.com/soyibjonovfayzulo-code/fayzulo-uchun-/releases/latest/download/patch_0_5_2_501.pck",
     "fallback_pck_url": "https://russian-zombie-survival.pages.dev/patch_0_5_2_501.pck",
-    "pck_size": 5796,
-    "sha256": "228b4a1d656bcf217a6f9602ef3e98743e4753e9eaba984fbdc717bacbf3c090",
-    "manifest_hash": "da397aaf3409613d1c83a7e9961d8573b36999e1e058000e14046ea1f6647cf1",
-    "signature_rsa": "wtfXd/FpP15bie41OaxqDK6NILmz60D4qcLhoDZZV+66tYCwbxn+CR5YOPZq9pSkogBrppTVHkosRljZD2WfbTPa8FznZusv2SaLv89CbLtJAiDssxGMCwOL74oe83uMnSX2ILkmtNQBizVQVpR27Kldg1SUyLHF5cfrwI10M8GnbwLBqwQA0vo8gDDh4Kn1ijEhPx1lNki4EDyRJm8KuZ29SV5pgkYn9COuHOCQcxD08yx6/FZu3s71yRaCFVApGWaaP9UJkDuyODGCiubOiieGl4wDOED7/3C1HiL0pxp/RezsXfSZcEFj3F+PHcvY00tFI4spVF6XbNI4QTSLuw==",
+    "pck_size": 21144,
+    "sha256": "8ef8f89615e5457e197f0d54e9f1f2c626dd91d535d3fa0dcd25703e0f5e5f8f",
+    "manifest_hash": "2024d7c832935c6c15929234523ff97ce305c67f795299c2d0b193fe5ed76ef6",
+    "signature_rsa": "",
     "patch_mode": "delta",
     "changed_files_count": 1,
     "changed_files": [
-      "res://launcher/versions.json"
+      "res://scripts/systems/hot_update.gd"
     ],
-    "changelog": "Fix headless verify exit code in pck_builder and Gatekeeper step",
-    "updated_at": "2026-11-15T08:51:57Z"
+    "changelog": "Configure GitHub Releases primary manifest URL and safe CI signing",
+    "updated_at": "2026-11-15T09:26:28Z"
   },
   {
     "version": "0.5.1",
