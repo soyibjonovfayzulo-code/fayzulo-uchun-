@@ -55,12 +55,22 @@ NATIVE_APK_PATTERNS = [
 RES_DEP_REGEX = re.compile(r'(?:preload|load|path)\s*(?:\(\s*|=\s*)"(res://[^"]+)"')
 
 
-def sha256_of(path: Path) -> str:
+TEXT_HASH_EXTS = {".gd", ".tscn", ".tres", ".gdshader", ".json", ".cfg", ".import", ".uid"}
+
+
+def sha256_of_binary(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(65536), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def sha256_of(path: Path) -> str:
+    if path.suffix.lower() in TEXT_HASH_EXTS:
+        data = path.read_bytes().replace(b"\r\n", b"\n")
+        return hashlib.sha256(data).hexdigest()
+    return sha256_of_binary(path)
 
 
 def canonical_manifest_payload(version: str, build_number: int, min_apk_build: int, requires_apk: bool, pck_size: int, sha256_hex: str) -> str:
@@ -343,7 +353,7 @@ def build_patch(
         raise RuntimeError("Failed to build & verify delta PCK via Godot PCKPacker")
 
     pck_size = pck_path.stat().st_size
-    pck_sha256 = sha256_of(pck_path)
+    pck_sha256 = sha256_of_binary(pck_path)
     payload = canonical_manifest_payload(version, build_number, min_apk_build, False, pck_size, pck_sha256)
     manifest_hash = hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
