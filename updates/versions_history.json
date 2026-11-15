@@ -1,5 +1,26 @@
 [
   {
+    "version": "0.5.3",
+    "build_number": 502,
+    "min_apk_build": 500,
+    "requires_apk_update": false,
+    "apk_update_reason": "",
+    "pck_filename": "patch_0_5_3_502.pck",
+    "pck_url": "https://github.com/soyibjonovfayzulo-code/fayzulo-uchun-/releases/latest/download/patch_0_5_3_502.pck",
+    "fallback_pck_url": "https://russian-zombie-survival.pages.dev/patch_0_5_3_502.pck",
+    "pck_size": 5796,
+    "sha256": "228b4a1d656bcf217a6f9602ef3e98743e4753e9eaba984fbdc717bacbf3c090",
+    "manifest_hash": "94544bdbe061143ec0fcade740b7966f4ad1639509bb94ddce0137fbbb978cf8",
+    "signature_rsa": "",
+    "patch_mode": "delta",
+    "changed_files_count": 1,
+    "changed_files": [
+      "res://launcher/versions.json"
+    ],
+    "changelog": "Fix dependency resolver to ignore directories and release v0.5.3",
+    "updated_at": "2026-11-15T16:11:08Z"
+  },
+  {
     "version": "0.5.2",
     "build_number": 501,
     "min_apk_build": 500,
