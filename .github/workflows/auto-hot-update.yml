@@ -125,9 +125,11 @@ jobs:
         if: steps.build_patch.outputs.requires_apk != 'true' && steps.build_patch.outputs.pck_file != ''
         run: |
           FILES_CSV=$(python3 -c "import json; print(','.join(json.load(open('updates/manifest.json')).get('changed_files', [])))")
-          godot --headless --path . -s res://tools/pck_builder.gd -- \
+          VERIFY_OUT=$(godot --headless --path . -s res://tools/pck_builder.gd -- \
             --verify-pck="res://updates/${{ steps.build_patch.outputs.pck_file }}" \
-            --files="$FILES_CSV"
+            --files="$FILES_CSV" 2>&1 || true)
+          echo "$VERIFY_OUT"
+          echo "$VERIFY_OUT" | grep -q "PCK_VERIFY_OK"
 
       - name: 7. Publish Patch & Manifest to GitHub Releases
         if: steps.build_patch.outputs.pck_file != '' || steps.build_patch.outputs.requires_apk == 'true'

@@ -12,12 +12,19 @@ extends SceneTree
 const PUB_KEY_PATH := "res://launcher/update_pub.key"
 const DEFAULT_PRIV_KEY_PATH := "user://update_priv.key"
 
+var _exit_code := 0
+
+
+func _process(_delta: float) -> bool:
+	quit(_exit_code)
+	return true
+
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	if "--gen-keys" in args:
 		_generate_keys()
-		quit(0)
+		_exit_code = 0
 		return
 
 	var verify_only := ""
@@ -41,12 +48,12 @@ func _initialize() -> void:
 	if verify_only != "":
 		var ok := _verify_pck(verify_only, files)
 		print("PCK_VERIFY_%s path=%s" % ["OK" if ok else "FAIL", verify_only])
-		quit(0 if ok else 1)
+		_exit_code = 0 if ok else 1
 		return
 
 	if files.is_empty():
 		print("PCK_BUILDER ERROR: No --files specified")
-		quit(1)
+		_exit_code = 1
 		return
 
 	var abs_out := _abs(out_path)
@@ -56,7 +63,7 @@ func _initialize() -> void:
 	var err := packer.pck_start(abs_out)
 	if err != OK:
 		print("PCK_BUILDER ERROR: pck_start failed with code ", err)
-		quit(1)
+		_exit_code = 1
 		return
 
 	var packed_set := {}
@@ -67,12 +74,12 @@ func _initialize() -> void:
 	var flush_err := packer.flush(false)
 	if flush_err != OK:
 		print("PCK_BUILDER ERROR: flush failed with code ", flush_err)
-		quit(1)
+		_exit_code = 1
 		return
 
 	if not _verify_pck(abs_out, files):
 		print("PCK_BUILDER ERROR: Post-build verification failed for ", abs_out)
-		quit(1)
+		_exit_code = 1
 		return
 
 	var sha := FileAccess.get_sha256(abs_out)
@@ -86,7 +93,7 @@ func _initialize() -> void:
 		sig_b64 = _sign_string(sign_payload, priv_key_path)
 
 	print("PCK_BUILDER_OK path=%s files=%d size=%d sha256=%s sig=%s" % [abs_out, packed_set.size(), sz, sha, sig_b64])
-	quit(0)
+	_exit_code = 0
 
 
 func _abs(p: String) -> String:
