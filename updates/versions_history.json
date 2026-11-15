@@ -1,5 +1,26 @@
 [
   {
+    "version": "0.5.2",
+    "build_number": 501,
+    "min_apk_build": 500,
+    "requires_apk_update": false,
+    "apk_update_reason": "",
+    "pck_filename": "patch_0_5_2_501.pck",
+    "pck_url": "https://github.com/soyibjonovfayzulo-code/fayzulo-uchun-/releases/latest/download/patch_0_5_2_501.pck",
+    "fallback_pck_url": "https://russian-zombie-survival.pages.dev/patch_0_5_2_501.pck",
+    "pck_size": 5796,
+    "sha256": "228b4a1d656bcf217a6f9602ef3e98743e4753e9eaba984fbdc717bacbf3c090",
+    "manifest_hash": "da397aaf3409613d1c83a7e9961d8573b36999e1e058000e14046ea1f6647cf1",
+    "signature_rsa": "wtfXd/FpP15bie41OaxqDK6NILmz60D4qcLhoDZZV+66tYCwbxn+CR5YOPZq9pSkogBrppTVHkosRljZD2WfbTPa8FznZusv2SaLv89CbLtJAiDssxGMCwOL74oe83uMnSX2ILkmtNQBizVQVpR27Kldg1SUyLHF5cfrwI10M8GnbwLBqwQA0vo8gDDh4Kn1ijEhPx1lNki4EDyRJm8KuZ29SV5pgkYn9COuHOCQcxD08yx6/FZu3s71yRaCFVApGWaaP9UJkDuyODGCiubOiieGl4wDOED7/3C1HiL0pxp/RezsXfSZcEFj3F+PHcvY00tFI4spVF6XbNI4QTSLuw==",
+    "patch_mode": "delta",
+    "changed_files_count": 1,
+    "changed_files": [
+      "res://launcher/versions.json"
+    ],
+    "changelog": "Fix headless verify exit code in pck_builder and Gatekeeper step",
+    "updated_at": "2026-11-15T08:51:57Z"
+  },
+  {
     "version": "0.5.1",
     "build_number": 500,
     "min_apk_build": 500,
@@ -20,27 +41,5 @@
     ],
     "changelog": "Базовая сборка v0.5.1 с системой автоматического обновления",
     "updated_at": "2026-11-15T08:16:48Z"
-  },
-  {
-    "version": "0.5.2",
-    "build_number": 501,
-    "min_apk_build": 500,
-    "requires_apk_update": false,
-    "apk_update_reason": "",
-    "pck_filename": "patch_0_5_2_501.pck",
-    "pck_url": "https://github.com/russian-zombie-survival/game/releases/latest/download/patch_0_5_2_501.pck",
-    "fallback_pck_url": "https://russian-zombie-survival.pages.dev/patch_0_5_2_501.pck",
-    "pck_size": 40052,
-    "sha256": "573e5be8a537bf2e6001988cd9a1a783473f5dafe4a34c44d1f69589a076c33b",
-    "manifest_hash": "fa6e7c24c3a6ad509d7aa676d20a46fed29191af675a7c3a1120e506877d8e93",
-    "signature_rsa": "EdzA72EwgsBnZ4mLbUbUMqScde4CictGAKPXCQqYduBEep3jy+ZGMMV+Yn0imzzyQcpT+JQ0F//Pi5fghELX+UzihOITXpXozm8NI46ggVYKdg5exS1nBfZE05fAypSZKrJBiLQUoIct3grtqUejpKAT2GFJcflNmt1swuax0EkuvtdOffL6y8BEDCopO9beTwrBgGSL/Ryc1xCaw3q8ISFfetrvKjbqNxBGO1Wbd6xd9rS4oGa7orB4BYA4aGDbgGbGi6/LNFcIphLpk676Pry1+vqzNFW+gLssUF87V5Sy+5s9hWtc0Rlz465eU4ifY9ZquQlhN7wZXFOEWD30Jw==",
-    "patch_mode": "delta",
-    "changed_files_count": 2,
-    "changed_files": [
-      "res://launcher/main_menu.gd",
-      "res://scripts/interaction/door.gd"
-    ],
-    "changelog": "Автоматическое обновление v0.5.2: оптимизация дверей, окон, ящиков и система автообновления",
-    "updated_at": "2026-11-14T18:20:38Z"
   }
 ]
