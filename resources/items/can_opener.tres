@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/can_opener.png" id="1_omkgk"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_goqp3"]
+
+[resource]
+script = ExtResource("2_goqp3")
+id = "can_opener"
+display_name = "Консервный нож"
+description = "Открывает консервы. Без него придётся ковырять банку ножом."
+category = 5
+icon = ExtResource("1_omkgk")
+model_path = "res://assets/items/can_opener.glb"
+tags = PackedStringArray("opener")

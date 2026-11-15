@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/pot.png" id="1_eu18j"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_iip1c"]
+
+[resource]
+script = ExtResource("2_iip1c")
+id = "pot"
+display_name = "Кастрюля"
+description = "Алюминиевая кастрюля на 2 литра. В ней варят гречку и макароны."
+category = 5
+icon = ExtResource("1_eu18j")
+model_path = "res://versions/v03/assets/items/pot.glb"
+weight = 0.8
+tags = PackedStringArray("pot")

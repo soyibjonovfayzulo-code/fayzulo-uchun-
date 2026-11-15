@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/empty_bottle.png" id="1_le5cv"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_pxffk"]
+
+[resource]
+script = ExtResource("2_pxffk")
+id = "empty_bottle"
+display_name = "Пустая бутылка"
+description = "Пластиковая бутылка. Пока в кранах есть вода, её можно наполнить."
+icon = ExtResource("1_le5cv")
+model_path = "res://assets/items/empty_bottle.glb"
+weight = 0.05
+tags = PackedStringArray()
+fills_to = "water"

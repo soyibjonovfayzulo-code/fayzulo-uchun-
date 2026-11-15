@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/antibiotics.png" id="1_4vuvc"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_inmjb"]
+
+[resource]
+script = ExtResource("2_inmjb")
+id = "antibiotics"
+display_name = "Амоксициллин"
+description = "Антибиотик. Лечит загноившиеся раны. От укуса зомби не спасёт."
+category = 2
+icon = ExtResource("1_4vuvc")
+model_path = "res://assets/items/antibiotics.glb"
+weight = 0.04
+uses = 6
+tags = PackedStringArray()
+use_verb = "Принять таблетку"
+antibiotic_hours = 12.0

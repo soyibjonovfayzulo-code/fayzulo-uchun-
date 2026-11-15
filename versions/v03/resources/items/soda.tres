@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/soda.png" id="1_pwr5e"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_yuqs7"]
+
+[resource]
+script = ExtResource("2_yuqs7")
+id = "soda"
+display_name = "Лимонад «Буратино»"
+description = "Сладкая газировка в стеклянной бутылке."
+category = 1
+icon = ExtResource("1_pwr5e")
+model_path = "res://versions/v03/assets/items/soda.glb"
+weight = 0.6
+uses = 2
+tags = PackedStringArray()
+use_verb = "Выпить"
+hunger = -0.03
+thirst = -0.2
+calm = 0.05

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/sportbag.png" id="1_exkc3"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_tabfa"]
+
+[resource]
+script = ExtResource("2_tabfa")
+id = "sportbag"
+display_name = "Спортивная сумка"
+description = "Сумка «Олимпиада». +9 кг вместимости."
+category = 7
+icon = ExtResource("1_exkc3")
+model_path = "res://assets/items/sportbag.glb"
+weight = 0.8
+tags = PackedStringArray()
+equip_slot = "back"
+capacity_bonus = 9.0

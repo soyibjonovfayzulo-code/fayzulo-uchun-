@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="V02LootTable" format=3]
+
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/loot_table.gd" id="1_nyrdd"]
+
+[resource]
+script = ExtResource("1_nyrdd")
+id = "bathroom_cupboard"
+item_ids = PackedStringArray("bandage", "zelenka", "iodine", "analgin", "plaster", "first_aid")
+weights = PackedFloat32Array(3, 2, 2, 2, 2, 0.5)
+max_counts = PackedInt32Array(3, 1, 1, 1, 1, 1)

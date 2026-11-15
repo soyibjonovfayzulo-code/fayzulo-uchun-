@@ -1,0 +1,63 @@
+class_name V02DayNight
+extends Node
+## Drives sun/moon, ambient light and street lamps from GameTime. Muted, natural palette.
+
+@export var sun_path: NodePath
+@export var environment_path: NodePath
+
+var sun: DirectionalLight3D
+var env: Environment
+
+# hour -> [sun colour, sun energy, ambient colour, ambient energy]
+const KEYS := [
+	[0.0, Color("#5a6a90"), 0.2, Color("#2a3448"), 0.5],
+	[4.5, Color("#5a6a90"), 0.2, Color("#2a3448"), 0.5],
+	[6.0, Color("#e0a070"), 0.55, Color("#605a60"), 0.55],
+	[8.0, Color("#f0dcc0"), 1.05, Color("#8a8c90"), 0.75],
+	[13.0, Color("#fff0dc"), 1.25, Color("#9a9ca0"), 0.8],
+	[18.0, Color("#f0c890"), 0.95, Color("#8a8480"), 0.7],
+	[20.5, Color("#c87050"), 0.4, Color("#504850"), 0.5],
+	[22.0, Color("#5a6a90"), 0.2, Color("#2a3448"), 0.5],
+	[24.0, Color("#5a6a90"), 0.2, Color("#2a3448"), 0.5],
+]
+
+var _lamps_on := false
+
+## 0 at day, 1 at night: read by zombie vision and lighting-dependent systems.
+static var night := 0.0
+
+
+func _ready() -> void:
+	sun = get_node(sun_path) as DirectionalLight3D
+	var we := get_node(environment_path) as WorldEnvironment
+	env = we.environment
+
+
+func _process(_delta: float) -> void:
+	var h := V02GameTime.get_hour_f()
+	var a: Array = KEYS[0]
+	var b: Array = KEYS[1]
+	for i in range(KEYS.size() - 1):
+		if h >= KEYS[i][0] and h <= KEYS[i + 1][0]:
+			a = KEYS[i]
+			b = KEYS[i + 1]
+			break
+	var t: float = 0.0 if b[0] == a[0] else (h - a[0]) / (b[0] - a[0])
+	sun.light_color = (a[1] as Color).lerp(b[1], t)
+	sun.light_energy = lerpf(a[2], b[2], t)
+	env.ambient_light_color = (a[3] as Color).lerp(b[3], t)
+	env.ambient_light_energy = lerpf(a[4], b[4], t)
+	# Sun arc (daytime) / moon (night): keep light from a high angle so iso shadows stay short.
+	var day := clampf((h - 5.0) / 16.0, 0.0, 1.0)
+	var night := h < 5.5 or h > 21.0
+	var az := lerpf(-70.0, 70.0, day) if not night else 30.0
+	var el := -lerpf(28.0, 62.0, sin(day * PI)) if not night else -55.0
+	sun.rotation_degrees = Vector3(el, az - 30.0, 0)
+	var night_factor := maxf(1.0 - smoothstep(5.0, 6.5, h), smoothstep(20.0, 21.5, h))
+	RenderingServer.global_shader_parameter_set("night_factor", night_factor)
+	night = night_factor
+	var want := night_factor > 0.6
+	if want != _lamps_on:
+		_lamps_on = want
+		for l in get_tree().get_nodes_in_group("street_lamps"):
+			(l as Light3D).light_energy = 6.0 if want else 0.0

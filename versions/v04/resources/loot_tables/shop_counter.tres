@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="V04LootTable" format=3]
+
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/loot_table.gd" id="1_18s84"]
+
+[resource]
+script = ExtResource("1_18s84")
+id = "shop_counter"
+item_ids = PackedStringArray("cigarettes", "lighter", "matches", "chocolate", "batteries", "newspaper")
+weights = PackedFloat32Array(3, 2, 2, 2, 1.5, 1)
+max_counts = PackedInt32Array(1, 1, 1, 2, 2, 1)

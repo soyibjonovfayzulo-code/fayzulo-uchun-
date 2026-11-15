@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="V02LootTable" format=3]
+
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/loot_table.gd" id="1_b1xba"]
+
+[resource]
+script = ExtResource("1_b1xba")
+id = "pharmacy_shelf"
+item_ids = PackedStringArray("bandage", "first_aid", "zelenka", "iodine", "analgin", "plaster")
+weights = PackedFloat32Array(3, 1, 2, 2, 3, 2)
+max_counts = PackedInt32Array(4, 1, 1, 1, 1, 1)
+empty_chance = 0.15

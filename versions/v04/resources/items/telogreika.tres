@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="V04ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v04/assets/items/icons/telogreika.png" id="1_gb8ef"]
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/item_data.gd" id="2_rc4cl"]
+
+[resource]
+script = ExtResource("2_rc4cl")
+id = "telogreika"
+display_name = "Телогрейка"
+description = "Ватная куртка. Зубам зомби её прокусить непросто, и в ней не замёрзнешь."
+category = 6
+icon = ExtResource("1_gb8ef")
+model_path = "res://versions/v04/assets/items/telogreika.glb"
+weight = 1.5
+tags = PackedStringArray()
+equip_slot = "body"
+protection = 0.35
+warmth = 0.8

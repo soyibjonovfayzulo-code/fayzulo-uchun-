@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/lighter.png" id="1_8u20k"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_2b3lm"]
+
+[resource]
+script = ExtResource("2_2b3lm")
+id = "lighter"
+display_name = "Зажигалка"
+description = "Дешёвая пластиковая зажигалка."
+category = 8
+icon = ExtResource("1_8u20k")
+model_path = "res://versions/v03/assets/items/lighter.glb"
+weight = 0.04
+uses = 60
+tags = PackedStringArray()
+use_verb = "Посветить зажигалкой"
+light_seconds = 15.0

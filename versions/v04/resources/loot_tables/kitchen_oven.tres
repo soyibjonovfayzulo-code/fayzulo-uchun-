@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="V04LootTable" format=3]
+
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/loot_table.gd" id="1_tg1og"]
+
+[resource]
+script = ExtResource("1_tg1og")
+id = "kitchen_oven"
+item_ids = PackedStringArray("pot", "buckwheat", "knife", "matches")
+weights = PackedFloat32Array(2, 1, 0.5, 1)
+max_counts = PackedInt32Array(1, 1, 1, 1)
+rolls_max = 1
+empty_chance = 0.75

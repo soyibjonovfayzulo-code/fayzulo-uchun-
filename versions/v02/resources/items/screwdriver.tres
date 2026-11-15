@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/screwdriver.png" id="1_uab3k"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_wcw8n"]
+
+[resource]
+script = ExtResource("2_wcw8n")
+id = "screwdriver"
+display_name = "Отвёртка"
+description = "Крестовая отвёртка. В крайнем случае — колющее оружие."
+category = 5
+icon = ExtResource("1_uab3k")
+model_path = "res://versions/v02/assets/items/screwdriver.glb"
+weight = 0.15
+max_durability = 25.0
+tags = PackedStringArray("screw")
+equip_slot = "hand"
+attack_style = "stab"
+damage = 9.0
+swing_time = 0.45
+reach = 1.0
+arc_deg = 40.0
+hit_chance = 0.88
+crit_chance = 0.2
+knockback = 0.4
+knockdown_chance = 0.0
+endurance_cost = 0.02
+noise_radius = 3.0
+door_damage_mult = 0.2

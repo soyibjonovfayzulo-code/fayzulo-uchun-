@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LootTable" format=3]
+
+[ext_resource type="Script" path="res://scripts/inventory/loot_table.gd" id="1_r8vqv"]
+
+[resource]
+script = ExtResource("1_r8vqv")
+id = "gas_shop"
+item_ids = PackedStringArray("chocolate", "soda", "water", "jerrycan", "cigarettes", "lighter", "crackers", "batteries", "car_key")
+weights = PackedFloat32Array(2, 2, 2, 2.5, 1.5, 1.5, 1, 1, 0.6)
+max_counts = PackedInt32Array(3, 1, 1, 1, 1, 1, 1, 2, 1)
+rolls_min = 2
+rolls_max = 4
+empty_chance = 0.1

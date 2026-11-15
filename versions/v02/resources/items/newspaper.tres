@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/newspaper.png" id="1_ceyle"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_2gfxo"]
+
+[resource]
+script = ExtResource("2_2gfxo")
+id = "newspaper"
+display_name = "Газета «Вечерний Строитель»"
+description = "Последний выпуск перед тем, как всё началось."
+icon = ExtResource("1_ceyle")
+model_path = "res://versions/v02/assets/items/newspaper.glb"
+tags = PackedStringArray()
+use_verb = "Читать"

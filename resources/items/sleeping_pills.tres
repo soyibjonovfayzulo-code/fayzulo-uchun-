@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/sleeping_pills.png" id="1_o5eqq"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_q2ca6"]
+
+[resource]
+script = ExtResource("2_q2ca6")
+id = "sleeping_pills"
+display_name = "Димедрол"
+description = "Снотворное. Поможет уснуть, даже если не хочется."
+category = 2
+icon = ExtResource("1_o5eqq")
+model_path = "res://assets/items/sleeping_pills.glb"
+weight = 0.03
+uses = 10
+tags = PackedStringArray()
+use_verb = "Принять таблетку"
+drowsiness = 0.25
+sleep_aid = true

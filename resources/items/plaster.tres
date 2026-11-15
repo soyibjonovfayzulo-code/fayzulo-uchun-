@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/plaster.png" id="1_jjdhy"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_wepxf"]
+
+[resource]
+script = ExtResource("2_wepxf")
+id = "plaster"
+display_name = "Пластырь"
+description = "Катушка лейкопластыря. Годится только для царапин."
+category = 2
+icon = ExtResource("1_jjdhy")
+model_path = "res://assets/items/plaster.glb"
+weight = 0.03
+uses = 5
+tags = PackedStringArray()
+use_verb = "Заклеить царапину"
+heal = 1.0
+stops_bleeding = true
+minor_wounds_only = true

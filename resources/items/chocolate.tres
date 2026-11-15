@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/chocolate.png" id="1_6iqv1"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_6tg0h"]
+
+[resource]
+script = ExtResource("2_6tg0h")
+id = "chocolate"
+display_name = "Шоколадка"
+description = "Молочный шоколад в бумажной обёртке."
+category = 0
+icon = ExtResource("1_6iqv1")
+model_path = "res://assets/items/chocolate.glb"
+max_stack = 10
+tags = PackedStringArray()
+use_verb = "Съесть"
+hunger = -0.08
+calm = 0.12

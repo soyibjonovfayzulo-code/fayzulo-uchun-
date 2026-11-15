@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://versions/v03/scripts/zombie_ai/zombie.gd" id="1_z"]
+[ext_resource type="Script" path="res://versions/v03/scripts/components/health_component.gd" id="2_h"]
+[ext_resource type="Script" path="res://versions/v03/scripts/player/character_animator.gd" id="3_a"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_z"]
+radius = 0.27
+height = 1.72
+
+[node name="Zombie" type="CharacterBody3D"]
+script = ExtResource("1_z")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.86, 0)
+shape = SubResource("CapsuleShape3D_z")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_h")
+max_health = 75.0
+
+[node name="Animator" type="Node" parent="."]
+script = ExtResource("3_a")
+
+[node name="Agent" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.6
+target_desired_distance = 0.5
+path_max_distance = 2.0
+agent_height_offset = 0.0
+radius = 0.3
+height = 1.7

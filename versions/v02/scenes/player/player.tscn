@@ -1,0 +1,50 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://versions/v02/scripts/player/player.gd" id="1_player"]
+[ext_resource type="PackedScene" path="res://versions/v02/assets/characters/player.glb" id="2_model"]
+[ext_resource type="Script" path="res://versions/v02/scripts/player/character_animator.gd" id="3_anim"]
+[ext_resource type="Script" path="res://versions/v02/scripts/components/health_component.gd" id="4_health"]
+[ext_resource type="Script" path="res://versions/v02/scripts/player/player_stats.gd" id="5_stats"]
+[ext_resource type="Script" path="res://versions/v02/scripts/player/interactor.gd" id="6_inter"]
+
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/player_inventory.gd" id="7_inv"]
+[ext_resource type="Script" path="res://versions/v02/scripts/components/wounds.gd" id="8_wounds"]
+[ext_resource type="Script" path="res://versions/v02/scripts/combat/player_combat.gd" id="9_combat"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.28
+height = 1.75
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_player")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.875, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="Animator" type="Node" parent="."]
+script = ExtResource("3_anim")
+model_path = NodePath("../Model")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("4_health")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("5_stats")
+
+[node name="Interactor" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+script = ExtResource("6_inter")
+
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("7_inv")
+
+[node name="Wounds" type="Node" parent="."]
+script = ExtResource("8_wounds")
+health_path = NodePath("../Health")
+
+[node name="Combat" type="Node" parent="."]
+script = ExtResource("9_combat")
+player_path = NodePath("..")

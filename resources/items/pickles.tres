@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/pickles.png" id="1_12m15"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_t8t0v"]
+
+[resource]
+script = ExtResource("2_t8t0v")
+id = "pickles"
+display_name = "Огурцы солёные"
+description = "Трёхлитровка бабушкиного посола."
+category = 0
+icon = ExtResource("1_12m15")
+model_path = "res://assets/items/pickles.glb"
+weight = 1.0
+uses = 3
+tags = PackedStringArray()
+use_verb = "Съесть"
+hunger = -0.08
+thirst = -0.04

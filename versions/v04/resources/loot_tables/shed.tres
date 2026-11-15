@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="V04LootTable" format=3]
+
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/loot_table.gd" id="1_wyklp"]
+
+[resource]
+script = ExtResource("1_wyklp")
+id = "shed"
+item_ids = PackedStringArray("firewood", "planks", "nails", "hammer", "axe", "saw", "jerrycan", "pot", "empty_bottle", "pipe")
+weights = PackedFloat32Array(3, 2.5, 2.5, 1.5, 1, 1.2, 1, 0.8, 1, 0.8)
+max_counts = PackedInt32Array(4, 4, 20, 1, 1, 1, 1, 1, 2, 1)
+rolls_min = 2
+rolls_max = 4
+empty_chance = 0.1

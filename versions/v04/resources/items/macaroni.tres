@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="V04ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v04/assets/items/icons/macaroni.png" id="1_ga8oj"]
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/item_data.gd" id="2_2n78n"]
+
+[resource]
+script = ExtResource("2_2n78n")
+id = "macaroni"
+display_name = "Макароны «Рожки»"
+description = "Сухие макароны. Хрустят. Лучше отварить в кастрюле."
+category = 0
+icon = ExtResource("1_ga8oj")
+model_path = "res://versions/v04/assets/items/macaroni.glb"
+weight = 0.5
+uses = 3
+tags = PackedStringArray()
+use_verb = "Съесть сырыми"
+hunger = -0.05
+thirst = 0.08
+raw = true
+cooked_id = "pot_macaroni"

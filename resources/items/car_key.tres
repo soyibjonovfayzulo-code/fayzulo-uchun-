@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/car_key.png" id="1_ixk3g"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_i2pcl"]
+
+[resource]
+script = ExtResource("2_i2pcl")
+id = "car_key"
+display_name = "Ключи от машины"
+description = "Ключ зажигания с брелоком."
+icon = ExtResource("1_ixk3g")
+model_path = "res://assets/items/car_key.glb"
+weight = 0.03
+tags = PackedStringArray()

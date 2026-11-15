@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="V04LootTable" format=3]
+
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/loot_table.gd" id="1_pxrl2"]
+
+[resource]
+script = ExtResource("1_pxrl2")
+id = "village_cupboard"
+item_ids = PackedStringArray("potato", "jam", "buckwheat", "pot", "matches", "can_opener", "tushenka", "pickles", "coffee")
+weights = PackedFloat32Array(3, 2, 2, 2, 2, 1, 1.5, 1.5, 0.6)
+max_counts = PackedInt32Array(1, 1, 1, 1, 1, 1, 1, 1, 1)

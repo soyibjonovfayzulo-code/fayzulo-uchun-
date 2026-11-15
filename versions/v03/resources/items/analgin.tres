@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/analgin.png" id="1_nixu7"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_kq4dm"]
+
+[resource]
+script = ExtResource("2_kq4dm")
+id = "analgin"
+display_name = "Анальгин"
+description = "Обезболивающее. Снимает боль на несколько часов."
+category = 2
+icon = ExtResource("1_nixu7")
+model_path = "res://versions/v03/assets/items/analgin.glb"
+weight = 0.03
+uses = 10
+tags = PackedStringArray()
+use_verb = "Принять таблетку"
+painkiller_hours = 4.0

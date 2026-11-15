@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/cigarettes.png" id="1_f4r4y"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_8nvap"]
+
+[resource]
+script = ExtResource("2_8nvap")
+id = "cigarettes"
+display_name = "Сигареты без фильтра"
+description = "Мятая пачка. Успокаивает нервы."
+icon = ExtResource("1_f4r4y")
+model_path = "res://versions/v02/assets/items/cigarettes.glb"
+weight = 0.03
+uses = 20
+tags = PackedStringArray()
+use_verb = "Закурить"

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/nails.png" id="1_8gakv"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_m3cbx"]
+
+[resource]
+script = ExtResource("2_m3cbx")
+id = "nails"
+display_name = "Гвозди"
+description = "Строительные гвозди, 2 штуки на доску."
+icon = ExtResource("1_8gakv")
+model_path = "res://assets/items/nails.glb"
+weight = 0.01
+max_stack = 50
+tags = PackedStringArray()

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/crowbar.png" id="1_bhysa"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_bdwhq"]
+
+[resource]
+script = ExtResource("2_bdwhq")
+id = "crowbar"
+display_name = "Монтировка"
+description = "Стальной лом-гвоздодёр. Взламывает запертые двери."
+category = 3
+icon = ExtResource("1_bhysa")
+model_path = "res://assets/items/crowbar.glb"
+weight = 1.5
+max_durability = 120.0
+tags = PackedStringArray("pry")
+equip_slot = "hand"
+attack_style = "swing"
+damage = 22.0
+swing_time = 0.78
+reach = 1.35
+arc_deg = 70.0
+knockback = 1.8
+knockdown_chance = 0.3
+endurance_cost = 0.045
+noise_radius = 5.0
+door_damage_mult = 1.6

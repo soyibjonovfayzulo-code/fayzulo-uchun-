@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/matches.png" id="1_rdqh6"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_nj6j2"]
+
+[resource]
+script = ExtResource("2_nj6j2")
+id = "matches"
+display_name = "Спички"
+description = "Коробок спичек. Спичка светит секунд десять."
+category = 8
+icon = ExtResource("1_rdqh6")
+model_path = "res://versions/v02/assets/items/matches.glb"
+weight = 0.02
+uses = 20
+tags = PackedStringArray()
+use_verb = "Зажечь спичку"
+light_seconds = 10.0

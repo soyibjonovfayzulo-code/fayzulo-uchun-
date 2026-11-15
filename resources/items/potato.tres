@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/potato.png" id="1_rxmtg"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_lil4l"]
+
+[resource]
+script = ExtResource("2_lil4l")
+id = "potato"
+display_name = "Картошка"
+description = "Сетка молодой картошки с огорода. Сырой не поешь — варите в кастрюле."
+category = 0
+icon = ExtResource("1_rxmtg")
+model_path = "res://assets/items/potato.glb"
+weight = 0.9
+uses = 3
+tags = PackedStringArray()
+use_verb = "Съесть сырой"
+hunger = -0.04
+thirst = 0.02
+raw = true
+cooked_id = "pot_potato"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="LootTable" format=3]
+
+[ext_resource type="Script" path="res://scripts/inventory/loot_table.gd" id="1_8d5mt"]
+
+[resource]
+script = ExtResource("1_8d5mt")
+id = "police_drawers"
+item_ids = PackedStringArray("ammo", "flashlight", "batteries", "car_key", "cigarettes", "bandage", "analgin", "keys")
+weights = PackedFloat32Array(2, 1.5, 1.5, 1, 1, 1, 1, 0.8)
+max_counts = PackedInt32Array(8, 1, 2, 1, 1, 2, 1, 1)

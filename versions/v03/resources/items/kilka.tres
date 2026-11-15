@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/kilka.png" id="1_7bq70"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_4mvrf"]
+
+[resource]
+script = ExtResource("2_4mvrf")
+id = "kilka"
+display_name = "Килька в томате"
+description = "Маленькая банка, пахнет детством и вокзалом. Нужно чем-то открыть."
+category = 0
+icon = ExtResource("1_7bq70")
+model_path = "res://versions/v03/assets/items/kilka.glb"
+weight = 0.25
+max_stack = 10
+tags = PackedStringArray()
+use_verb = "Съесть"
+hunger = -0.18
+thirst = 0.04
+needs_opener = true

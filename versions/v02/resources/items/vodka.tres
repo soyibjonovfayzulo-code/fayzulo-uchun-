@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/vodka.png" id="1_qwjws"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_fktig"]
+
+[resource]
+script = ExtResource("2_fktig")
+id = "vodka"
+display_name = "Водка"
+description = "40 градусов. Пить — плохая идея, а вот рану обработать можно."
+category = 1
+icon = ExtResource("1_qwjws")
+model_path = "res://versions/v02/assets/items/vodka.glb"
+weight = 0.5
+uses = 5
+tags = PackedStringArray()
+use_verb = "Выпить"
+thirst = -0.04
+disinfects = true

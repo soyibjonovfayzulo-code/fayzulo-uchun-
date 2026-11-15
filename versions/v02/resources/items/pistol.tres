@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/pistol.png" id="1_6ttue"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_gintf"]
+
+[resource]
+script = ExtResource("2_gintf")
+id = "pistol"
+display_name = "Пистолет Макарова"
+description = "Табельный ПМ, магазин на 8 патронов. Выстрел слышно на весь район."
+category = 3
+icon = ExtResource("1_6ttue")
+model_path = "res://versions/v02/assets/items/pistol.glb"
+weight = 0.73
+max_durability = 300.0
+tags = PackedStringArray()
+equip_slot = "hand"
+attack_style = "shoot"
+damage = 45.0
+swing_time = 0.38
+reach = 1.0
+crit_chance = 0.2
+knockdown_chance = 0.25
+endurance_cost = 0.005
+durability_loss = 0.5
+noise_radius = 45.0
+ammo_id = "ammo"
+magazine = 8
+fire_range = 18.0

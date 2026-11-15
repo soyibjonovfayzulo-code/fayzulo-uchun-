@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/batteries.png" id="1_7jcxn"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_yi5l1"]
+
+[resource]
+script = ExtResource("2_yi5l1")
+id = "batteries"
+display_name = "Батарейки"
+description = "Пара пальчиковых батареек."
+icon = ExtResource("1_7jcxn")
+model_path = "res://assets/items/batteries.glb"
+weight = 0.02
+max_stack = 10
+tags = PackedStringArray()

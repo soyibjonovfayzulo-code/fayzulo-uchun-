@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/pliers.png" id="1_egmfo"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_eys4f"]
+
+[resource]
+script = ExtResource("2_eys4f")
+id = "pliers"
+display_name = "Плоскогубцы"
+description = "Пригодятся, когда начнём что-то чинить."
+category = 5
+icon = ExtResource("1_egmfo")
+model_path = "res://versions/v02/assets/items/pliers.glb"
+weight = 0.25
+tags = PackedStringArray("pliers")

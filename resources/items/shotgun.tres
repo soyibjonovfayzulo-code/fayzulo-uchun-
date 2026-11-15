@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/shotgun.png" id="1_swkik"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_pc3qx"]
+
+[resource]
+script = ExtResource("2_pc3qx")
+id = "shotgun"
+display_name = "Двустволка ИЖ"
+description = "Охотничье ружьё 12 калибра. Два ствола, страшная отдача, валит с ног."
+category = 3
+icon = ExtResource("1_swkik")
+model_path = "res://assets/items/shotgun.glb"
+weight = 3.2
+max_durability = 200.0
+tags = PackedStringArray()
+equip_slot = "hand"
+attack_style = "shoot"
+damage = 80.0
+swing_time = 0.7
+reach = 1.0
+hit_chance = 0.9
+crit_chance = 0.3
+knockback = 2.5
+knockdown_chance = 0.7
+endurance_cost = 0.01
+durability_loss = 0.8
+noise_radius = 55.0
+ammo_id = "shells"
+magazine = 2
+fire_range = 12.0

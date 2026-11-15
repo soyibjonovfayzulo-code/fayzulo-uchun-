@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/backpack.png" id="1_bpykh"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_5rqrv"]
+
+[resource]
+script = ExtResource("2_5rqrv")
+id = "backpack"
+display_name = "Рюкзак туристический"
+description = "Брезентовый рюкзак. +14 кг вместимости на спине."
+category = 7
+icon = ExtResource("1_bpykh")
+model_path = "res://versions/v02/assets/items/backpack.glb"
+weight = 1.0
+tags = PackedStringArray()
+equip_slot = "back"
+capacity_bonus = 14.0

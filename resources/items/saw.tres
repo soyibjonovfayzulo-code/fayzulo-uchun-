@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/saw.png" id="1_4vbjq"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_rxxoc"]
+
+[resource]
+script = ExtResource("2_rxxoc")
+id = "saw"
+display_name = "Ножовка"
+description = "Ножовка по дереву."
+category = 5
+icon = ExtResource("1_4vbjq")
+model_path = "res://assets/items/saw.glb"
+weight = 0.5
+tags = PackedStringArray("saw")

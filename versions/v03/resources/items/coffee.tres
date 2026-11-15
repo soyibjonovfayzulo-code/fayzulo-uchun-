@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/coffee.png" id="1_13yyq"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_cl7mq"]
+
+[resource]
+script = ExtResource("2_cl7mq")
+id = "coffee"
+display_name = "Кофе растворимый"
+description = "Банка растворимого кофе. Прогоняет сон."
+category = 1
+icon = ExtResource("1_13yyq")
+model_path = "res://versions/v03/assets/items/coffee.glb"
+weight = 0.2
+uses = 6
+tags = PackedStringArray()
+use_verb = "Выпить кофе"
+thirst = 0.02
+drowsiness = -0.25

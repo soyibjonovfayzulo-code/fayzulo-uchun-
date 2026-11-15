@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/buckwheat.png" id="1_k74mi"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_niyeq"]
+
+[resource]
+script = ExtResource("2_niyeq")
+id = "buckwheat"
+display_name = "Гречка, 900 г"
+description = "Ядрица. Сухой её есть почти невозможно — сварите с водой в кастрюле на плите или костре."
+category = 0
+icon = ExtResource("1_k74mi")
+model_path = "res://versions/v03/assets/items/buckwheat.glb"
+weight = 0.9
+uses = 3
+tags = PackedStringArray()
+use_verb = "Съесть сырой"
+hunger = -0.05
+thirst = 0.1
+raw = true
+cooked_id = "pot_buckwheat"

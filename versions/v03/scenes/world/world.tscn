@@ -1,0 +1,75 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://versions/v03/scripts/world/world.gd" id="1_world"]
+[ext_resource type="Script" path="res://versions/v03/scripts/world/district.gd" id="2_district"]
+[ext_resource type="PackedScene" path="res://versions/v03/scenes/player/player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://versions/v03/scripts/player/camera_rig.gd" id="4_cam"]
+[ext_resource type="Script" path="res://versions/v03/scripts/world/visibility_manager.gd" id="5_vis"]
+[ext_resource type="Script" path="res://versions/v03/scripts/world/day_night.gd" id="6_dn"]
+
+[ext_resource type="Script" path="res://versions/v03/scripts/zombie_ai/nav_baker.gd" id="7_nav"]
+[ext_resource type="Script" path="res://versions/v03/scripts/zombie_ai/zombie_spawner.gd" id="8_spawn"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.07, 0.075, 0.08, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.6, 0.62, 1)
+ambient_light_energy = 0.75
+tonemap_mode = 2
+ssao_enabled = true
+ssao_radius = 1.2
+ssao_intensity = 1.6
+ssao_power = 1.4
+adjustment_enabled = true
+adjustment_contrast = 1.05
+adjustment_saturation = 0.82
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, 0.354, -0.354, 0, 0.707, 0.707, 0.5, -0.612, 0.612, 0, 30, 0)
+light_color = Color(1, 0.94, 0.86, 1)
+light_energy = 1.1
+shadow_enabled = true
+shadow_bias = 0.04
+shadow_normal_bias = 1.5
+directional_shadow_mode = 0
+directional_shadow_max_distance = 110.0
+
+[node name="District" type="Node3D" parent="."]
+script = ExtResource("2_district")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("4_cam")
+target_path = NodePath("../Player")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+projection = 1
+current = true
+size = 15.0
+near = 1.0
+far = 160.0
+
+[node name="VisibilityManager" type="Node" parent="."]
+script = ExtResource("5_vis")
+player_path = NodePath("../Player")
+
+[node name="DayNight" type="Node" parent="."]
+script = ExtResource("6_dn")
+sun_path = NodePath("../Sun")
+environment_path = NodePath("../WorldEnvironment")
+
+[node name="NavBaker" type="Node" parent="."]
+script = ExtResource("7_nav")
+district_path = NodePath("../District")
+
+[node name="Zombies" type="Node3D" parent="."]
+script = ExtResource("8_spawn")
+player_path = NodePath("../Player")

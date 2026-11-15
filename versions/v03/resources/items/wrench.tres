@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/wrench.png" id="1_5cj0j"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_d0hn6"]
+
+[resource]
+script = ExtResource("2_d0hn6")
+id = "wrench"
+display_name = "Гаечный ключ"
+description = "Рожковый ключ на 17. Тяжёлый."
+category = 5
+icon = ExtResource("1_5cj0j")
+model_path = "res://versions/v03/assets/items/wrench.glb"
+weight = 0.4
+max_durability = 80.0
+tags = PackedStringArray("wrench")
+equip_slot = "hand"
+attack_style = "swing"
+damage = 12.0
+hit_chance = 0.86
+crit_chance = 0.08
+knockback = 1.2
+knockdown_chance = 0.15

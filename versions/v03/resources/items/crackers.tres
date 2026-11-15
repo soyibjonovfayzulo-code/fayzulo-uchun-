@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/crackers.png" id="1_dc5em"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_vwyr7"]
+
+[resource]
+script = ExtResource("2_vwyr7")
+id = "crackers"
+display_name = "Сухари ржаные"
+description = "Пачка сухарей с солью."
+category = 0
+icon = ExtResource("1_dc5em")
+model_path = "res://versions/v03/assets/items/crackers.glb"
+weight = 0.2
+uses = 3
+tags = PackedStringArray()
+use_verb = "Съесть"
+hunger = -0.08
+thirst = 0.05

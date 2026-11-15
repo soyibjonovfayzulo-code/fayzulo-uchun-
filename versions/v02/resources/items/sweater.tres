@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/sweater.png" id="1_403ah"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_14dv4"]
+
+[resource]
+script = ExtResource("2_14dv4")
+id = "sweater"
+display_name = "Свитер шерстяной"
+description = "Колючий, зато тёплый."
+category = 6
+icon = ExtResource("1_403ah")
+model_path = "res://versions/v02/assets/items/sweater.glb"
+weight = 0.5
+tags = PackedStringArray()
+equip_slot = "body"
+protection = 0.15

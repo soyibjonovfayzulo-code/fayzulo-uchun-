@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="V02ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v02/assets/items/icons/pipe.png" id="1_weils"]
+[ext_resource type="Script" path="res://versions/v02/scripts/inventory/item_data.gd" id="2_k1m2h"]
+
+[resource]
+script = ExtResource("2_k1m2h")
+id = "pipe"
+display_name = "Обрезок трубы"
+description = "Ржавая водопроводная труба."
+category = 3
+icon = ExtResource("1_weils")
+model_path = "res://versions/v02/assets/items/pipe.glb"
+weight = 1.2
+max_durability = 50.0
+tags = PackedStringArray()
+equip_slot = "hand"
+attack_style = "swing"
+damage = 18.0
+swing_time = 0.7
+reach = 1.35
+arc_deg = 75.0
+hit_chance = 0.83
+crit_chance = 0.08
+knockback = 1.8
+knockdown_chance = 0.3
+endurance_cost = 0.04
+noise_radius = 5.0

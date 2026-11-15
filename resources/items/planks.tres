@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/planks.png" id="1_73ng0"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_tkxs0"]
+
+[resource]
+script = ExtResource("2_tkxs0")
+id = "planks"
+display_name = "Доски"
+description = "Обрезные доски. Ими заколачивают окна и двери (нужны молоток и гвозди). Горят в костре."
+icon = ExtResource("1_73ng0")
+model_path = "res://assets/items/planks.glb"
+weight = 2.0
+max_stack = 6
+tags = PackedStringArray()
+fuel_hours = 1.0

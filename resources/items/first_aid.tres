@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/first_aid.png" id="1_ut15w"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_2eto1"]
+
+[resource]
+script = ExtResource("2_2eto1")
+id = "first_aid"
+display_name = "Аптечка автомобильная"
+description = "Бинты, жгут, вата и антисептик."
+category = 2
+icon = ExtResource("1_ut15w")
+model_path = "res://assets/items/first_aid.glb"
+weight = 0.6
+uses = 3
+tags = PackedStringArray()
+use_verb = "Оказать помощь"
+heal = 20.0
+stops_bleeding = true
+disinfects = true

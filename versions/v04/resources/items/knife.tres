@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="V04ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v04/assets/items/icons/knife.png" id="1_ftqtd"]
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/item_data.gd" id="2_rvh1q"]
+
+[resource]
+script = ExtResource("2_rvh1q")
+id = "knife"
+display_name = "Нож кухонный"
+description = "Быстрый, но короткий. Хорош, чтобы добить лежачего."
+category = 3
+icon = ExtResource("1_ftqtd")
+model_path = "res://versions/v04/assets/items/knife.glb"
+weight = 0.3
+max_durability = 40.0
+tags = PackedStringArray("cut")
+equip_slot = "hand"
+attack_style = "stab"
+damage = 14.0
+swing_time = 0.45
+reach = 1.05
+arc_deg = 45.0
+hit_chance = 0.9
+crit_chance = 0.25
+knockback = 0.6
+knockdown_chance = 0.04
+endurance_cost = 0.02
+noise_radius = 3.0
+door_damage_mult = 0.3

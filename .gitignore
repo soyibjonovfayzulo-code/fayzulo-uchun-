@@ -1,0 +1,28 @@
+# Godot 4+ cache & temporary files
+.godot/
+*.tmp
+*.translation
+tools/screens/*.png
+tools/debug/*.png
+
+# Built APK binaries & local PCK artifacts
+*.apk
+*.aab
+*.idsig
+updates/*.pck
+
+# Security: NEVER commit private keys, keystores, tokens, or local credentials
+*priv*.key
+*.pem
+*.keystore
+*.jks
+.env
+.env.*
+*secret*
+*token*
+
+# Keep public verification key and manifest metadata tracked
+!launcher/update_pub.key
+!updates/manifest.json
+!updates/versions_history.json
+!updates/index.html

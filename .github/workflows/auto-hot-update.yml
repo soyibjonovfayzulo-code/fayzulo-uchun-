@@ -1,0 +1,188 @@
+name: Auto Hot Update (PCK Patch & Manifest Deploy)
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - 'updates/**'
+      - 'tools/version_state.json'
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Описание обновления (Release Notes на русском)'
+        required: false
+        default: 'Автоматическое обновление ресурсов и скриптов'
+      force_full_patch:
+        description: 'Собрать полный патч всех ресурсов вместо дельта-патча'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: auto-hot-update-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  GODOT_VERSION: '4.7'
+  GODOT_RELEASE: 'stable'
+  CLOUDFLARE_PROJECT: ${{ vars.CLOUDFLARE_PROJECT_NAME || 'russian-zombie-survival' }}
+
+jobs:
+  hot-update:
+    name: Build, Verify & Publish PCK Hot Update
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    env:
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - name: 1. Checkout Repository (Full History)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 2. Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. Install Official Godot 4.7 Headless
+        run: |
+          mkdir -p ~/.local/bin
+          GODOT_ZIP="Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64.zip"
+          GODOT_BIN="Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64"
+          if [ ! -f ~/.local/bin/godot ]; then
+            curl -sSfL "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}/${GODOT_ZIP}" -o "/tmp/${GODOT_ZIP}"
+            unzip -q "/tmp/${GODOT_ZIP}" -d /tmp
+            mv "/tmp/${GODOT_BIN}" ~/.local/bin/godot
+            chmod +x ~/.local/bin/godot
+          fi
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          ~/.local/bin/godot --version
+
+      - name: 4. Warm Up Godot Import Cache (.godot/imported)
+        run: |
+          godot --headless --import --path . || true
+
+      - name: 5. Diff Changes, Resolve Dependencies & Build Signed PCK Patch
+        id: build_patch
+        env:
+          HOT_UPDATE_PRIVATE_KEY: ${{ secrets.HOT_UPDATE_PRIVATE_KEY }}
+        run: |
+          NOTES="${{ github.event.inputs.release_notes }}"
+          if [ -z "$NOTES" ]; then
+            NOTES=$(git log -1 --pretty=%B | head -n 1)
+          fi
+
+          EXTRA_ARGS=""
+          if [ "${{ github.event.inputs.force_full_patch }}" = "true" ]; then
+            EXTRA_ARGS="--full-fallback"
+          fi
+
+          HOST_URL="${{ vars.CLOUDFLARE_PAGES_URL || 'https://russian-zombie-survival.pages.dev' }}"
+          RELEASE_BASE="https://github.com/${{ github.repository }}/releases/latest/download"
+
+          python3 tools/build_pck_patch.py \
+            --auto-bump \
+            --git-diff "HEAD~1..HEAD" \
+            --godot godot \
+            --host "$HOST_URL" \
+            --pck-base-url "$RELEASE_BASE" \
+            --changelog "$NOTES" \
+            $EXTRA_ARGS
+
+          VERSION=$(python3 -c "import json; print(json.load(open('updates/manifest.json'))['version'])")
+          BUILD_NUM=$(python3 -c "import json; print(json.load(open('updates/manifest.json'))['build_number'])")
+          REQ_APK=$(python3 -c "import json; print(str(json.load(open('updates/manifest.json')).get('requires_apk_update', False)).lower())")
+          APK_REASON=$(python3 -c "import json; print(json.load(open('updates/manifest.json')).get('apk_update_reason', ''))")
+          PCK_FILE=$(python3 -c "import json; print(json.load(open('updates/manifest.json')).get('pck_filename', ''))")
+          PCK_SIZE=$(python3 -c "import json; print(json.load(open('updates/manifest.json')).get('pck_size', 0))")
+          PCK_SHA=$(python3 -c "import json; print(json.load(open('updates/manifest.json')).get('sha256', ''))")
+          PATCH_MODE=$(python3 -c "import json; print(json.load(open('updates/manifest.json')).get('patch_mode', 'delta'))")
+          CHANGED_COUNT=$(python3 -c "import json; print(json.load(open('updates/manifest.json')).get('changed_files_count', 0))")
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUM" >> $GITHUB_OUTPUT
+          echo "requires_apk=$REQ_APK" >> $GITHUB_OUTPUT
+          echo "apk_reason=$APK_REASON" >> $GITHUB_OUTPUT
+          echo "pck_file=$PCK_FILE" >> $GITHUB_OUTPUT
+          echo "pck_size=$PCK_SIZE" >> $GITHUB_OUTPUT
+          echo "pck_sha=$PCK_SHA" >> $GITHUB_OUTPUT
+          echo "patch_mode=$PATCH_MODE" >> $GITHUB_OUTPUT
+          echo "changed_count=$CHANGED_COUNT" >> $GITHUB_OUTPUT
+
+      - name: 6. Verify Patch Integrity & Resource Loader (Gatekeeper)
+        if: steps.build_patch.outputs.requires_apk != 'true' && steps.build_patch.outputs.pck_file != ''
+        run: |
+          FILES_CSV=$(python3 -c "import json; print(','.join(json.load(open('updates/manifest.json')).get('changed_files', [])))")
+          godot --headless --path . -s res://tools/pck_builder.gd -- \
+            --verify-pck="res://updates/${{ steps.build_patch.outputs.pck_file }}" \
+            --files="$FILES_CSV"
+
+      - name: 7. Publish Patch & Manifest to GitHub Releases
+        if: steps.build_patch.outputs.pck_file != '' || steps.build_patch.outputs.requires_apk == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.build_patch.outputs.version }}
+          name: "Hot Update v${{ steps.build_patch.outputs.version }} (Build #${{ steps.build_patch.outputs.build_number }})"
+          body: |
+            ### Russian Zombie Survival — Автоматическое обновление v${{ steps.build_patch.outputs.version }}
+            - **Сборка:** `#${{ steps.build_patch.outputs.build_number }}`
+            - **Режим патча:** `${{ steps.build_patch.outputs.patch_mode }}`
+            - **Изменено файлов:** `${{ steps.build_patch.outputs.changed_count }}`
+            - **Размер PCK:** `${{ steps.build_patch.outputs.pck_size }} байт`
+            - **SHA-256:** `${{ steps.build_patch.outputs.pck_sha }}`
+            - **Требуется новый APK:** `${{ steps.build_patch.outputs.requires_apk }}` ${{ steps.build_patch.outputs.apk_reason }}
+          files: |
+            updates/manifest.json
+            updates/versions_history.json
+            updates/index.html
+            updates/*.pck
+          prerelease: false
+          make_latest: true
+
+      - name: 8. Deploy manifest.json to Cloudflare Pages (Free Tier)
+        if: env.CF_API_TOKEN != '' && env.CF_ACCOUNT_ID != ''
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy updates --project-name=${{ env.CLOUDFLARE_PROJECT }} --branch=main
+
+      - name: 9. Commit Updated Version State & Manifest History
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/version_state.json updates/manifest.json updates/versions_history.json updates/index.html
+          git diff --staged --quiet || git commit -m "chore(hot-update): v${{ steps.build_patch.outputs.version }} (#${{ steps.build_patch.outputs.build_number }}) [skip ci]"
+          git push origin HEAD:main || true
+
+      - name: 10. Write Detailed Step Summary Report
+        if: always()
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          # Russian Zombie Survival — Hot Update Report
+          | Параметр | Значение |
+          | :--- | :--- |
+          | **Версия** | `v${{ steps.build_patch.outputs.version }}` |
+          | **Номер сборки** | `#${{ steps.build_patch.outputs.build_number }}` |
+          | **Режим патча** | `${{ steps.build_patch.outputs.patch_mode }}` |
+          | **Упаковано ресурсов** | `${{ steps.build_patch.outputs.changed_count }}` |
+          | **Файл PCK** | `${{ steps.build_patch.outputs.pck_file }}` (`${{ steps.build_patch.outputs.pck_size }} байт`) |
+          | **SHA-256** | `${{ steps.build_patch.outputs.pck_sha }}` |
+          | **Требуется новый APK** | `${{ steps.build_patch.outputs.requires_apk }}` |
+          EOF
+          if [ "${{ steps.build_patch.outputs.requires_apk }}" = "true" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> **ВНИМАНИЕ: Требуется пересборка APK!** Причина: ${{ steps.build_patch.outputs.apk_reason }}. Обычный `.pck` патч остановлен, чтобы не повредить установленную игру." >> $GITHUB_STEP_SUMMARY
+          fi

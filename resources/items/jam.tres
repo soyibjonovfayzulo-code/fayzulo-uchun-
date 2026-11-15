@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/jam.png" id="1_86eoa"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_1aanu"]
+
+[resource]
+script = ExtResource("2_1aanu")
+id = "jam"
+display_name = "Варенье малиновое"
+description = "Бабушкино, прошлогоднее. Сладко и успокаивает."
+category = 0
+icon = ExtResource("1_86eoa")
+model_path = "res://assets/items/jam.glb"
+weight = 0.6
+uses = 4
+tags = PackedStringArray()
+use_verb = "Съесть ложку"
+hunger = -0.07
+calm = 0.12

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/firewood.png" id="1_bhecu"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_5pkdr"]
+
+[resource]
+script = ExtResource("2_5pkdr")
+id = "firewood"
+display_name = "Дрова"
+description = "Берёзовые поленья. Горят около полутора часов."
+icon = ExtResource("1_bhecu")
+model_path = "res://assets/items/firewood.glb"
+weight = 1.5
+max_stack = 10
+tags = PackedStringArray()
+fuel_hours = 1.5

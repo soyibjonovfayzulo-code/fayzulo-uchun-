@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/hammer.png" id="1_7khx6"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_f063l"]
+
+[resource]
+script = ExtResource("2_f063l")
+id = "hammer"
+display_name = "Молоток"
+description = "Слесарный молоток."
+category = 3
+icon = ExtResource("1_7khx6")
+model_path = "res://versions/v03/assets/items/hammer.glb"
+weight = 0.7
+max_durability = 60.0
+tags = PackedStringArray("hammer")
+equip_slot = "hand"
+attack_style = "swing"
+damage = 15.0
+swing_time = 0.55
+reach = 1.15
+hit_chance = 0.88
+crit_chance = 0.12
+knockback = 1.2
+knockdown_chance = 0.15
+door_damage_mult = 1.2

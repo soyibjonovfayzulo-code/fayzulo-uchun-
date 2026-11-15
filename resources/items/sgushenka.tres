@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/items/icons/sgushenka.png" id="1_08h56"]
+[ext_resource type="Script" path="res://scripts/inventory/item_data.gd" id="2_uymcp"]
+
+[resource]
+script = ExtResource("2_uymcp")
+id = "sgushenka"
+display_name = "Сгущёнка"
+description = "Молоко цельное сгущённое с сахаром. Очень калорийно. Нужно чем-то открыть."
+category = 0
+icon = ExtResource("1_08h56")
+model_path = "res://assets/items/sgushenka.glb"
+weight = 0.4
+max_stack = 10
+tags = PackedStringArray()
+use_verb = "Съесть"
+hunger = -0.22
+thirst = 0.06
+calm = 0.1
+needs_opener = true

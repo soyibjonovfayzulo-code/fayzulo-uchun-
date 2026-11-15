@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="V03ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v03/assets/items/icons/pot_buckwheat.png" id="1_gh8mc"]
+[ext_resource type="Script" path="res://versions/v03/scripts/inventory/item_data.gd" id="2_uc8py"]
+
+[resource]
+script = ExtResource("2_uc8py")
+id = "pot_buckwheat"
+display_name = "Гречневая каша"
+description = "Горячая рассыпчатая гречка в кастрюле."
+category = 0
+icon = ExtResource("1_gh8mc")
+model_path = "res://versions/v03/assets/items/pot_buckwheat.glb"
+weight = 1.6
+uses = 3
+tags = PackedStringArray()
+use_verb = "Съесть"
+hunger = -0.22
+thirst = 0.02
+calm = 0.08
+empty_id = "pot"
+fresh_hours = 24.0
+rot_hours = 60.0

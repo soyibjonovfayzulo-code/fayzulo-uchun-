@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="V04ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://versions/v04/assets/items/icons/apple.png" id="1_2oqkr"]
+[ext_resource type="Script" path="res://versions/v04/scripts/inventory/item_data.gd" id="2_yw5el"]
+
+[resource]
+script = ExtResource("2_yw5el")
+id = "apple"
+display_name = "Яблоко"
+description = "Антоновка с дачи."
+category = 0
+icon = ExtResource("1_2oqkr")
+model_path = "res://versions/v04/assets/items/apple.glb"
+weight = 0.2
+tags = PackedStringArray()
+use_verb = "Съесть"
+hunger = -0.07
+thirst = -0.03
+fresh_hours = 120.0
+rot_hours = 240.0

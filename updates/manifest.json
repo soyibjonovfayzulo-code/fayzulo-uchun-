@@ -1,0 +1,22 @@
+{
+  "version": "0.5.1",
+  "build_number": 500,
+  "min_apk_build": 500,
+  "requires_apk_update": false,
+  "apk_update_reason": "",
+  "pck_filename": "patch_0_5_1_500.pck",
+  "pck_url": "https://github.com/soyibjonovfayzulo-code/fayzulo-uchun-/releases/latest/download/patch_0_5_1_500.pck",
+  "fallback_pck_url": "https://russian-zombie-survival.pages.dev/patch_0_5_1_500.pck",
+  "pck_size": 40052,
+  "sha256": "573e5be8a537bf2e6001988cd9a1a783473f5dafe4a34c44d1f69589a076c33b",
+  "manifest_hash": "00fc9c7052023349f787c36a1aa1b43caf9b49e366c0c411b45114ff362e516c",
+  "signature_rsa": "Yu4a11osxyojS/n/tWmD5iHq7UV0oM/+k+mEz2BA+EMWruDPP0H63ufNklbCo9erJN35uF0SqZRosTytSLx20GKY14gvtpa+e12bA5GNyqTrU5HBeqyXpR7mUcpqRybEL2BvLB+xA9X+Mm0b+QjZjey4bfLCWmBBj06xkan/WkhDJps16ESoqjvzxbS9nStJPJ7o+u9VQ39ZaZCm1NGKxxe5oYfBeLbRwgrRWbm/6nm1H0Wrx8xFLe1z1LUzkAjGolJOv4i8MzXFP8YVTch2ktlw31EOMbPqzhLuRX8WBMZeLWZSgS37Hbg9KURHgXrFknQhq96y1Rdy80pu7Fy7gQ==",
+  "patch_mode": "delta",
+  "changed_files_count": 2,
+  "changed_files": [
+    "res://launcher/main_menu.gd",
+    "res://scripts/interaction/door.gd"
+  ],
+  "changelog": "Базовая сборка v0.5.1 с системой автоматического обновления",
+  "updated_at": "2026-11-15T08:16:48Z"
+}
