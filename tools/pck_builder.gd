@@ -149,14 +149,17 @@ func _verify_pck(pck_path: String, files: PackedStringArray) -> bool:
 	if magic.size() < 4 or magic[0] != 0x47 or magic[1] != 0x44 or magic[2] != 0x50 or magic[3] != 0x43:
 		return false
 	if not ProjectSettings.load_resource_pack(abs_p, true):
+		print("PCK_VERIFY_ERR: load_resource_pack failed")
 		return false
 	for item in files:
 		var res_p := item if item.begins_with("res://") else ("res://" + item.trim_prefix("/"))
 		if not FileAccess.file_exists(res_p) and not ResourceLoader.exists(res_p):
+			print("PCK_VERIFY_ERR: missing ", res_p)
 			return false
 		if res_p.ends_with(".gd") or res_p.ends_with(".gdshader") or res_p.ends_with(".tres"):
-			var loaded := ResourceLoader.load(res_p, "", ResourceLoader.CACHE_MODE_IGNORE)
+			var loaded := ResourceLoader.load(res_p, "", ResourceLoader.CACHE_MODE_REUSE)
 			if loaded == null:
+				print("PCK_VERIFY_ERR: ResourceLoader.load failed for ", res_p)
 				return false
 	return true
 

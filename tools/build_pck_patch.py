@@ -183,7 +183,9 @@ def resolve_dependencies(changed_res_paths: list, baseline: dict, current: dict)
         for match in RES_DEP_REGEX.finditer(content):
             dep = match.group(1)
             dep_rel = dep[6:] if dep.startswith("res://") else dep
-            if (ROOT / dep_rel).exists():
+            if dep_rel.startswith("tools/") or dep_rel.startswith("updates/"):
+                continue
+            if (ROOT / dep_rel).is_file():
                 # Include dependency if it is new or modified compared to baseline
                 if dep not in baseline or baseline.get(dep) != current.get(dep):
                     if dep not in resolved:
