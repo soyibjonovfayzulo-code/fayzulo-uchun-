@@ -1,7 +1,7 @@
 class_name UpdateWindow
 extends CanvasLayer
 ## Minimal, smooth Russian-language modal window for the Auto Hot Update System.
-## Designed for zero GC / FPS overhead: updates text only when integer percentage changes.
+## Stays visible on completion ("Обновление успешно установлено") or error until the user closes it.
 
 var _backdrop: ColorRect
 var _card: PanelContainer
@@ -18,7 +18,6 @@ var _close_btn: Button
 var _last_pct_int := -1
 var _target_pct := 0.0
 var _display_pct := 0.0
-var _auto_hide_timer: SceneTreeTimer
 
 
 func _init() -> void:
@@ -39,8 +38,9 @@ func _build_ui() -> void:
 	add_child(root)
 
 	_backdrop = ColorRect.new()
-	_backdrop.color = Color(0.02, 0.02, 0.02, 0.82)
+	_backdrop.color = Color(0.02, 0.02, 0.02, 0.84)
 	_backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.add_child(_backdrop)
 
 	var center := CenterContainer.new()
@@ -48,8 +48,8 @@ func _build_ui() -> void:
 	root.add_child(center)
 
 	_card = PanelContainer.new()
-	_card.custom_minimum_size = Vector2(540, 320)
-	_card.add_theme_stylebox_override("panel", UiTheme.panel_box(Color(0.05, 0.05, 0.045, 0.96), true, 28))
+	_card.custom_minimum_size = Vector2(560, 340)
+	_card.add_theme_stylebox_override("panel", UiTheme.panel_box(Color(0.05, 0.05, 0.045, 0.97), true, 28))
 	center.add_child(_card)
 
 	var vbox := VBoxContainer.new()
@@ -78,7 +78,7 @@ func _build_ui() -> void:
 	vbox.add_child(_badge_lbl)
 
 	_ver_lbl = Label.new()
-	_ver_lbl.text = "Версия: 0.5.1"
+	_ver_lbl.text = "Версия: 0.5.1 (сборка #500)"
 	_ver_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_ver_lbl.add_theme_font_size_override("font_size", 18)
 	_ver_lbl.add_theme_color_override("font_color", UiTheme.TEXT)
@@ -88,7 +88,7 @@ func _build_ui() -> void:
 	_notes_lbl.text = ""
 	_notes_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_notes_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_notes_lbl.custom_minimum_size = Vector2(460, 0)
+	_notes_lbl.custom_minimum_size = Vector2(480, 0)
 	_notes_lbl.add_theme_font_size_override("font_size", 14)
 	_notes_lbl.add_theme_color_override("font_color", UiTheme.DIM)
 	_notes_lbl.visible = false
@@ -101,6 +101,8 @@ func _build_ui() -> void:
 	_status_lbl = Label.new()
 	_status_lbl.text = "Загрузка обновления: 0%"
 	_status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status_lbl.custom_minimum_size = Vector2(480, 0)
 	_status_lbl.add_theme_font_size_override("font_size", 18)
 	_status_lbl.add_theme_color_override("font_color", UiTheme.TEXT)
 	vbox.add_child(_status_lbl)
@@ -114,7 +116,7 @@ func _build_ui() -> void:
 	vbox.add_child(_ascii_bar_lbl)
 
 	_prog_bar = ProgressBar.new()
-	_prog_bar.custom_minimum_size = Vector2(460, 14)
+	_prog_bar.custom_minimum_size = Vector2(480, 14)
 	_prog_bar.max_value = 100.0
 	_prog_bar.value = 0.0
 	_prog_bar.show_percentage = false
@@ -124,14 +126,14 @@ func _build_ui() -> void:
 	_wait_lbl.text = "Пожалуйста, подождите..."
 	_wait_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_wait_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_wait_lbl.custom_minimum_size = Vector2(460, 0)
+	_wait_lbl.custom_minimum_size = Vector2(480, 0)
 	_wait_lbl.add_theme_font_size_override("font_size", 16)
 	_wait_lbl.add_theme_color_override("font_color", UiTheme.DIM)
 	vbox.add_child(_wait_lbl)
 
 	_close_btn = Button.new()
 	_close_btn.text = "Продолжить"
-	_close_btn.custom_minimum_size = Vector2(220, 40)
+	_close_btn.custom_minimum_size = Vector2(240, 44)
 	_close_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_close_btn.visible = false
 	_close_btn.pressed.connect(hide_window)
@@ -157,12 +159,50 @@ func _format_block_bar(pct_int: int, total_blocks: int) -> String:
 	return "[" + "█".repeat(filled) + "░".repeat(empty) + "]"
 
 
+func _open_modal() -> void:
+	if not visible:
+		visible = true
+		_card.modulate.a = 0.0
+		var tw := create_tween()
+		tw.tween_property(_card, "modulate:a", 1.0, 0.2)
+
+
+func show_checking(cur_ver: String, cur_build: int) -> void:
+	_badge_lbl.text = "ПРОВЕРКА ОБНОВЛЕНИЙ"
+	_badge_lbl.add_theme_color_override("font_color", UiTheme.ACCENT)
+	_ver_lbl.text = "Текущая версия: v%s (сборка #%d)" % [cur_ver, cur_build]
+	_notes_lbl.visible = false
+	_prog_bar.visible = false
+	_ascii_bar_lbl.visible = false
+	_status_lbl.text = "Подключение к серверу GitHub..."
+	_wait_lbl.text = "Пожалуйста, подождите..."
+	_close_btn.visible = false
+	_open_modal()
+	set_process(false)
+
+
+func show_up_to_date(cur_ver: String, cur_build: int) -> void:
+	_badge_lbl.text = "ОБНОВЛЕНИЙ НЕТ"
+	_badge_lbl.add_theme_color_override("font_color", Color(0.55, 0.85, 0.58))
+	_ver_lbl.text = "Версия: v%s (сборка #%d)" % [cur_ver, cur_build]
+	_notes_lbl.visible = false
+	_prog_bar.visible = false
+	_ascii_bar_lbl.visible = false
+	_status_lbl.text = "Установлена последняя версия"
+	_wait_lbl.text = "Все ресурсы и скрипты актуальны."
+	_close_btn.text = "Закрыть"
+	_close_btn.visible = true
+	_open_modal()
+	set_process(false)
+
+
 func show_update_start(manifest: Dictionary) -> void:
 	var ver := str(manifest.get("version", "0.5.x"))
+	var bld := int(manifest.get("build_number", 0))
 	var notes := str(manifest.get("changelog", manifest.get("release_notes", ""))).strip_edges()
 	_badge_lbl.text = "НОВОЕ ОБНОВЛЕНИЕ"
 	_badge_lbl.add_theme_color_override("font_color", UiTheme.ACCENT)
-	_ver_lbl.text = "Версия: %s" % ver
+	_ver_lbl.text = "Версия: %s" % ver if bld <= 0 else "Версия: %s (сборка #%d)" % [ver, bld]
 	if notes != "":
 		_notes_lbl.text = notes
 		_notes_lbl.visible = true
@@ -177,40 +217,44 @@ func show_update_start(manifest: Dictionary) -> void:
 	_ascii_bar_lbl.text = _format_block_bar(0, 18)
 	_wait_lbl.text = "Пожалуйста, подождите..."
 	_close_btn.visible = false
-	if not visible:
-		visible = true
-		_card.modulate.a = 0.0
-		var tw := create_tween()
-		tw.tween_property(_card, "modulate:a", 1.0, 0.2)
+	_open_modal()
 	set_process(true)
 
 
 func set_progress(pct: float, _downloaded_bytes: int, _total_bytes: int, ver: String) -> void:
 	if not visible:
 		show_update_start({"version": ver})
-	_ver_lbl.text = "Версия: %s" % ver
 	_target_pct = clampf(pct, 0.0, 100.0)
 	set_process(true)
 
 
-func show_completed(applied: bool, ver: String, message: String) -> void:
-	if not visible and not applied:
-		return
+func show_completed(applied: bool, ver: String, message: String, is_manual := false) -> void:
 	set_process(false)
 	if applied:
+		_badge_lbl.text = "ОБНОВЛЕНИЕ ЗАВЕРШЕНО"
+		_badge_lbl.add_theme_color_override("font_color", Color(0.55, 0.88, 0.55))
+		_ver_lbl.text = "Версия: %s" % ver
 		_target_pct = 100.0
 		_display_pct = 100.0
+		_prog_bar.visible = true
+		_ascii_bar_lbl.visible = true
 		_prog_bar.value = 100.0
-		_status_lbl.text = "Загрузка обновления: 100%"
+		_status_lbl.text = "Обновление успешно установлено"
 		_ascii_bar_lbl.text = _format_block_bar(100, 18)
 		_wait_lbl.text = message
+		_close_btn.text = "Продолжить"
 		_close_btn.visible = true
-		_auto_hide_timer = get_tree().create_timer(1.6)
-		_auto_hide_timer.timeout.connect(hide_window)
-	else:
-		_status_lbl.text = "Обновление отменено"
+		_open_modal()
+	elif is_manual or visible:
+		_badge_lbl.text = "ОШИБКА ОБНОВЛЕНИЯ"
+		_badge_lbl.add_theme_color_override("font_color", Color(0.95, 0.35, 0.28))
+		_prog_bar.visible = false
+		_ascii_bar_lbl.visible = false
+		_status_lbl.text = "Не удалось обновить игру"
 		_wait_lbl.text = message
+		_close_btn.text = "Закрыть"
 		_close_btn.visible = true
+		_open_modal()
 
 
 func show_apk_required(manifest: Dictionary, message: String) -> void:
@@ -223,8 +267,9 @@ func show_apk_required(manifest: Dictionary, message: String) -> void:
 	_ascii_bar_lbl.visible = false
 	_status_lbl.text = message
 	_wait_lbl.text = reason if reason != "" else "Изменились нативные компоненты Android или движка. Установите новый APK."
+	_close_btn.text = "Закрыть"
 	_close_btn.visible = true
-	visible = true
+	_open_modal()
 	set_process(false)
 
 

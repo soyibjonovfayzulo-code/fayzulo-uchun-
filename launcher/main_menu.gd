@@ -318,6 +318,9 @@ func _build_ui() -> void:
 	_menu_button("Версии игры", "v0.1 — v0.5, все этапы").pressed.connect(func() -> void: _show("versions"))
 	_menu_button("Галерея", "кадры из игры").pressed.connect(func() -> void: _show("gallery"))
 	_menu_button("Настройки", "графика, интерфейс, звук").pressed.connect(func() -> void: _show("settings"))
+	_menu_button("Проверить обновления", "скачать патч с GitHub").pressed.connect(func() -> void:
+		if HotUpdate:
+			HotUpdate.check_for_updates("", true))
 	_menu_button("Об игре", "управление и история").pressed.connect(func() -> void: _show("about"))
 	_menu_button("Выход", "").pressed.connect(func() -> void: get_tree().quit())
 	_buttons[0].grab_focus.call_deferred()
@@ -333,7 +336,8 @@ func _build_ui() -> void:
 	add_child(strip)
 	_ticker = _label(strip, NEWS + NEWS, 15, Color(0.78, 0.75, 0.67))
 	_ticker.position = Vector2(0, 4)
-	var ver := _label(self, "v0.5 «От первого лица»  ·  " + (HotUpdate.status_text if HotUpdate else "сборка Godot 4.7") + "  ·  ↑↓ Enter — выбор, Esc — назад", 13, UiTheme.DIM)
+	var ver_info := "v%s (сборка #%d) · %s" % [HotUpdate.current_version, HotUpdate.current_build, HotUpdate.status_text] if HotUpdate else "v0.5 «От первого лица» · Godot 4.7"
+	var ver := _label(self, ver_info, 14, UiTheme.DIM)
 	ver.position = Vector2(48, 0)
 	ver.anchor_top = 1.0
 	ver.anchor_bottom = 1.0
@@ -350,13 +354,27 @@ func _build_ui() -> void:
 	upd_bar.max_value = 100.0
 	add_child(upd_bar)
 	if HotUpdate:
+		HotUpdate.update_check_started.connect(func(_u: String) -> void:
+			ver.add_theme_color_override("font_color", UiTheme.DIM)
+			ver.text = HotUpdate.status_text)
 		HotUpdate.update_progress.connect(func(pct: float, _got: int, _tot: int, _v: String) -> void:
 			upd_bar.visible = true
 			upd_bar.value = pct
+			ver.add_theme_color_override("font_color", UiTheme.ACCENT)
 			ver.text = HotUpdate.status_text)
-		HotUpdate.update_finished.connect(func(_ok: bool, _v: String, _msg: String) -> void:
+		HotUpdate.update_up_to_date.connect(func(v: String, b: int, msg: String) -> void:
 			upd_bar.visible = false
-			ver.text = "v0.5 «От первого лица»  ·  " + HotUpdate.status_text + "  ·  Godot 4.7")
+			ver.add_theme_color_override("font_color", Color(0.62, 0.86, 0.65))
+			ver.text = "v%s (сборка #%d) · %s" % [v, b, msg])
+		HotUpdate.update_error.connect(func(err_msg: String) -> void:
+			upd_bar.visible = false
+			ver.add_theme_color_override("font_color", Color(0.95, 0.45, 0.38))
+			ver.text = "v%s (сборка #%d) · Ошибка: %s" % [HotUpdate.current_version, HotUpdate.current_build, err_msg])
+		HotUpdate.update_finished.connect(func(ok: bool, _v: String, _msg: String) -> void:
+			upd_bar.visible = false
+			if ok:
+				ver.add_theme_color_override("font_color", Color(0.62, 0.88, 0.62))
+			ver.text = "v%s (сборка #%d) · %s" % [HotUpdate.current_version, HotUpdate.current_build, HotUpdate.status_text])
 	_panel_host = Control.new()
 	_panel_host.anchor_left = 1.0
 	_panel_host.anchor_right = 1.0

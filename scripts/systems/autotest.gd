@@ -934,7 +934,7 @@ func _test_hot_update_and_live_debug() -> void:
 	_check("live_debug_overlay", LiveDebug.overlay_visible, "overlay=true")
 	LiveDebug.toggle_overlay()
 
-	# 2. Verify Russian UpdateWindow UI & ASCII block bar
+	# 2. Verify Russian UpdateWindow UI & ASCII block bar + persistent completion/up-to-date/error states
 	var uw: Variant = HotUpdate.update_window
 	uw.show_update_start({"version": "0.5.3", "release_notes": "Тестовое обновление"})
 	uw.set_progress(75.0, 7500, 10000, "0.5.3")
@@ -942,6 +942,13 @@ func _test_hot_update_and_live_debug() -> void:
 	uw._process(0.1)
 	_check("update_window_ui", uw.visible and uw._ver_lbl.text == "Версия: 0.5.3" and uw._status_lbl.text == "Загрузка обновления: 75%" and uw._ascii_bar_lbl.text == "[██████████████░░░░]",
 		"%s | %s" % [uw._status_lbl.text, uw._ascii_bar_lbl.text])
+	uw.show_completed(true, "0.5.3", "Обновление v0.5.3 успешно установлено!")
+	_check("update_window_persists_on_success", uw.visible and uw._status_lbl.text == "Обновление успешно установлено" and uw._close_btn.visible,
+		uw._status_lbl.text)
+	uw.show_up_to_date("0.5.3", 502)
+	_check("update_window_up_to_date", uw.visible and uw._status_lbl.text == "Установлена последняя версия", uw._status_lbl.text)
+	uw.show_completed(false, "0.5.1", "Таймаут подключения к серверу обновлений (TIMEOUT)", true)
+	_check("update_window_shows_error", uw.visible and uw._wait_lbl.text.contains("TIMEOUT"), uw._wait_lbl.text)
 	uw.hide_window()
 
 	# 3. Save game before Hot Update to verify Save/Load preservation
@@ -1035,7 +1042,7 @@ func _test_hot_update_and_live_debug() -> void:
 	HotUpdate.update_finished.connect(off_cb)
 	HotUpdate.check_for_updates("http://127.0.0.1:59999/unreachable_manifest.json")
 	var off_wait := 0.0
-	while not off_done[0] and off_wait < 6.0:
+	while not off_done[0] and off_wait < 16.0:
 		await get_tree().process_frame
 		off_wait += get_process_delta_time()
 	HotUpdate.update_finished.disconnect(off_cb)

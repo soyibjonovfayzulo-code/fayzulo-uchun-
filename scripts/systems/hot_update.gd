@@ -1,18 +1,18 @@
 extends Node
 ## Godot 4 PCK Hot Update System (Autoload: HotUpdate).
-## - Checks HTTPS/HTTP manifest on startup without blocking offline gameplay.
-## - Verifies manifest authenticity via canonical SHA-256 (`manifest_hash`) and RSA-2048 digital signature (`signature_rsa`).
-## - Displays the Russian-language modal `UpdateWindow` with live percentage, block progress bar, and status.
-## - Downloads only changed resources packaged into a compact delta `.pck` (with fallback URL support).
-## - Verifies file size, Godot PCK magic header ("GDPC"), and SHA-256 hash before applying.
-## - Maintains a working backup patch (`backup_patch.pck`) and boot-guard rollback if an update fails.
-## - Preserves all Save/Load data (`user://saves/v05.json`) and user options (`user://options.cfg`).
-## - Detects when Native / Android configuration changes (`min_apk_build` / `requires_apk_update`) require a full APK update.
+## - Automatically checks HTTPS/HTTP manifest on startup and via manual "Проверить обновления".
+## - Logs full diagnostics to ADB logcat (`[HotUpdate] ...`) for Android debugging.
+## - Never fails silently: surfaces exact HTTP/TLS/verification error reasons to the user.
+## - Verifies manifest authenticity via canonical SHA-256 (`manifest_hash`) and RSA-2048 (`signature_rsa`).
+## - Verifies `.pck` file size, Godot PCK magic header ("GDPC"), and SHA-256 hash before applying.
+## - Maintains `backup_patch.pck` and boot-guard rollback, while preserving Save/Load and options.
 
 signal update_check_started(url: String)
 signal update_available(manifest: Dictionary)
 signal update_progress(percent: float, downloaded_bytes: int, total_bytes: int, version: String)
 signal update_finished(applied: bool, version: String, message: String)
+signal update_up_to_date(version: String, build_number: int, message: String)
+signal update_error(error_message: String)
 signal apk_update_required(manifest: Dictionary, message: String)
 
 const BASE_VERSION := "0.5.1"
@@ -31,38 +31,53 @@ var current_version := BASE_VERSION
 var current_build := APK_BUILD_NUMBER
 var active_pck_path := ""
 var active_sha256 := ""
-var status_text := "v%s (сборка %d)" % [BASE_VERSION, APK_BUILD_NUMBER]
+var status_text := "v%s (сборка #%d)" % [BASE_VERSION, APK_BUILD_NUMBER]
+var last_error := ""
 var is_checking := false
 var is_downloading := false
+var is_manual_check := false
+var auto_check_enabled := true
 var last_manifest := {}
 var rolled_back_on_boot := false
 var update_window: CanvasLayer
+var diag_log: Array[String] = []
 
 var _manifest_req: HTTPRequest
 var _pck_req: HTTPRequest
 var _target_manifest := {}
 var _tried_fallback_manifest := false
 var _tried_fallback_pck := false
+var _last_req_url := ""
 
 
 func _init() -> void:
-	# Apply verified patch PCK as early as possible during autoload initialization.
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PATCH_DIR))
 	_boot_load_existing_patch()
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_log("Boot ready: os=%s base=v%s(#%d) active=v%s(#%d) pck=%s" % [
+		OS.get_name(), BASE_VERSION, APK_BUILD_NUMBER, current_version, current_build, active_pck_path
+	])
 	_setup_http_nodes()
 	_setup_update_window()
-	# Confirm boot succeeded once the first scene is up and running.
-	get_tree().create_timer(1.5).timeout.connect(confirm_boot_ok)
+	get_tree().create_timer(0.3).timeout.connect(confirm_boot_ok)
 	var args := OS.get_cmdline_user_args()
 	for a in args:
 		if a in ["--autotest", "--tour", "--poses", "--loadcheck", "--m78", "--v04", "--gallery", "--fps", "--fpvm", "--fpgallery", "--probe-admin", "--profile-interactions"]:
+			_log("Test flag detected (%s) — skipping startup auto-check" % a)
 			return
-	# Automatically check for updates on startup (non-blocking).
-	check_for_updates.call_deferred()
+	if auto_check_enabled:
+		check_for_updates.call_deferred("", false)
+
+
+func _log(msg: String) -> void:
+	var line := "[HotUpdate] " + msg
+	print(line)
+	diag_log.append(line)
+	if diag_log.size() > 60:
+		diag_log.remove_at(0)
 
 
 func _setup_update_window() -> void:
@@ -77,7 +92,13 @@ func _setup_update_window() -> void:
 			update_window.set_progress(pct, got, tot, ver))
 	update_finished.connect(func(applied: bool, ver: String, msg: String) -> void:
 		if update_window:
-			update_window.show_completed(applied, ver, msg))
+			if applied:
+				update_window.show_completed(true, ver, msg, is_manual_check)
+			elif is_manual_check or update_window.visible:
+				update_window.show_completed(false, ver, msg, true))
+	update_up_to_date.connect(func(ver: String, bld: int, _msg: String) -> void:
+		if update_window and is_manual_check:
+			update_window.show_up_to_date(ver, bld))
 	apk_update_required.connect(func(m: Dictionary, msg: String) -> void:
 		if update_window:
 			update_window.show_apk_required(m, msg))
@@ -86,14 +107,17 @@ func _setup_update_window() -> void:
 func _setup_http_nodes() -> void:
 	_manifest_req = HTTPRequest.new()
 	_manifest_req.name = "ManifestRequest"
-	_manifest_req.timeout = 5.0
+	_manifest_req.timeout = 12.0
+	_manifest_req.use_threads = true
+	_manifest_req.max_redirects = 10
 	_manifest_req.request_completed.connect(_on_manifest_completed)
 	add_child(_manifest_req)
 
 	_pck_req = HTTPRequest.new()
 	_pck_req.name = "PckDownloadRequest"
-	_pck_req.timeout = 45.0
+	_pck_req.timeout = 60.0
 	_pck_req.use_threads = true
+	_pck_req.max_redirects = 10
 	_pck_req.request_completed.connect(_on_pck_completed)
 	add_child(_pck_req)
 	set_process(false)
@@ -133,6 +157,39 @@ func set_manifest_url(url: String) -> void:
 	cf.save(CONFIG_PATH)
 
 
+func _http_error_reason(result: int, response_code: int) -> String:
+	match result:
+		HTTPRequest.RESULT_CANT_CONNECT:
+			return "Нет подключения к серверу (CANT_CONNECT)"
+		HTTPRequest.RESULT_CANT_RESOLVE:
+			return "Ошибка DNS — нет интернета или сервер недоступен (CANT_RESOLVE)"
+		HTTPRequest.RESULT_CONNECTION_ERROR:
+			return "Ошибка соединения (CONNECTION_ERROR)"
+		HTTPRequest.RESULT_TLS_HANDSHAKE_ERROR:
+			return "Ошибка HTTPS/TLS сертификата (TLS_HANDSHAKE_ERROR)"
+		HTTPRequest.RESULT_NO_RESPONSE:
+			return "Сервер не отвечает (NO_RESPONSE)"
+		HTTPRequest.RESULT_BODY_SIZE_LIMIT_EXCEEDED:
+			return "Превышен лимит размера ответа"
+		HTTPRequest.RESULT_DOWNLOAD_FILE_CANT_OPEN, HTTPRequest.RESULT_DOWNLOAD_FILE_WRITE_ERROR:
+			return "Ошибка записи файла на устройство"
+		HTTPRequest.RESULT_REDIRECT_LIMIT_REACHED:
+			return "Слишком много перенаправлений (REDIRECT_LIMIT)"
+		HTTPRequest.RESULT_TIMEOUT:
+			return "Превышено время ожидания сервера (TIMEOUT)"
+		HTTPRequest.RESULT_SUCCESS:
+			return "Ошибка HTTP %d от сервера" % response_code
+	return "Сетевая ошибка (result=%d, http=%d)" % [result, response_code]
+
+
+func _fail_update(reason: String) -> void:
+	last_error = reason
+	status_text = "v%s (#%d) · %s" % [current_version, current_build, reason]
+	_log("ERROR: " + reason)
+	update_error.emit(reason)
+	update_finished.emit(false, current_version, reason)
+
+
 ## Loads any previously installed patch on boot; automatically rolls back if the previous boot crashed.
 func _boot_load_existing_patch() -> void:
 	if not FileAccess.file_exists(STATE_PATH):
@@ -147,7 +204,6 @@ func _boot_load_existing_patch() -> void:
 	var attempts := int(st.get("boot_attempts", 0))
 
 	if pending and attempts >= 1:
-		# Previous launch with this patch failed to reach confirm_boot_ok() -> rollback!
 		_rollback_to_backup("Сбой запуска патча — выполнен автоматический откат")
 		return
 
@@ -167,12 +223,11 @@ func _boot_load_existing_patch() -> void:
 		current_build = int(st.get("build_number", APK_BUILD_NUMBER))
 		active_pck_path = pck_path
 		active_sha256 = expected_sha
-		status_text = "v%s (патч #%d)" % [current_version, current_build]
+		status_text = "v%s (сборка #%d)" % [current_version, current_build]
 	else:
 		_rollback_to_backup("Не удалось подключить PCK — выполнен откат")
 
 
-## Called after main menu / game world boots cleanly to mark the active patch as 100% stable.
 func confirm_boot_ok() -> void:
 	if not FileAccess.file_exists(STATE_PATH):
 		return
@@ -210,9 +265,8 @@ func _rollback_to_backup(reason: String) -> void:
 				"boot_pending": false,
 				"boot_attempts": 0,
 			})
-			status_text = "%s (v%s)" % [reason, current_version]
+			status_text = "%s (v%s #%d)" % [reason, current_version, current_build]
 			return
-	# Fallback to base APK resources
 	current_version = BASE_VERSION
 	current_build = APK_BUILD_NUMBER
 	active_pck_path = ""
@@ -225,48 +279,65 @@ func _rollback_to_backup(reason: String) -> void:
 		"boot_pending": false,
 		"boot_attempts": 0,
 	})
-	status_text = "%s (базовая v%s)" % [reason, BASE_VERSION]
+	status_text = "%s (базовая v%s #%d)" % [reason, BASE_VERSION, APK_BUILD_NUMBER]
 
 
 ## Starts an asynchronous HTTPS/HTTP check for a newer patch manifest.
-func check_for_updates(override_url := "") -> void:
+func check_for_updates(override_url := "", manual := false) -> void:
 	if is_checking or is_downloading:
+		_log("Check ignored: already busy (checking=%s downloading=%s)" % [is_checking, is_downloading])
 		return
 	var url := override_url if override_url != "" else get_manifest_url()
 	if not (url.begins_with("https://") or url.begins_with("http://")):
-		status_text = "Некорректный URL обновлений"
-		update_finished.emit(false, current_version, status_text)
+		is_manual_check = manual
+		_fail_update("Некорректный URL обновлений: " + url)
 		return
+	is_manual_check = manual
+	last_error = ""
 	_tried_fallback_manifest = (override_url != "")
 	is_checking = true
-	status_text = "Проверка обновлений..."
+	_last_req_url = url
+	status_text = "v%s (#%d) · Проверка обновлений..." % [current_version, current_build]
+	_log("Checking manifest: url=%s manual=%s" % [url, manual])
+	if manual and update_window:
+		update_window.show_checking(current_version, current_build)
 	update_check_started.emit(url)
-	var err := _manifest_req.request(url, ["Accept: application/json", "Cache-Control: no-cache"])
+	var headers := PackedStringArray([
+		"Accept: application/json",
+		"Cache-Control: no-cache",
+		"User-Agent: RussianZombieSurvival-Android/1.0",
+	])
+	var err := _manifest_req.request(url, headers)
 	if err != OK:
 		is_checking = false
-		status_text = "v%s (офлайн)" % current_version
-		update_finished.emit(false, current_version, "Офлайн — игра работает в обычном режиме")
+		_fail_update("Не удалось запустить HTTP-запрос (код %d)" % err)
 
 
 func _on_manifest_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	is_checking = false
+	_log("Manifest HTTP done: url=%s result=%d code=%d bytes=%d" % [_last_req_url, result, response_code, body.size()])
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+		var primary_err := _http_error_reason(result, response_code)
 		if not _tried_fallback_manifest and FALLBACK_MANIFEST_URL != "" and get_manifest_url() == DEFAULT_MANIFEST_URL:
 			_tried_fallback_manifest = true
 			is_checking = true
-			var err := _manifest_req.request(FALLBACK_MANIFEST_URL, ["Accept: application/json", "Cache-Control: no-cache"])
+			_last_req_url = FALLBACK_MANIFEST_URL
+			_log("Primary failed (%s) — trying fallback: %s" % [primary_err, FALLBACK_MANIFEST_URL])
+			var err := _manifest_req.request(FALLBACK_MANIFEST_URL, PackedStringArray([
+				"Accept: application/json",
+				"Cache-Control: no-cache",
+				"User-Agent: RussianZombieSurvival-Android/1.0",
+			]))
 			if err == OK:
 				return
 			is_checking = false
-		# No internet or server unreachable -> normal offline play!
-		status_text = "v%s (актуальная / офлайн)" % current_version
-		update_finished.emit(false, current_version, "Офлайн — продолжаем игру (v%s)" % current_version)
+		_fail_update(primary_err)
 		return
+
 	var text := body.get_string_from_utf8()
 	var parsed = JSON.parse_string(text)
 	if typeof(parsed) != TYPE_DICTIONARY:
-		status_text = "v%s (ошибка манифеста)" % current_version
-		update_finished.emit(false, current_version, "Некорректный формат манифеста — сохранена рабочая версия")
+		_fail_update("Некорректный формат manifest.json (ошибка разбора JSON)")
 		return
 	var manifest := parsed as Dictionary
 	last_manifest = manifest
@@ -286,6 +357,7 @@ func verify_manifest_security(manifest: Dictionary) -> bool:
 	var expected_mhash := str(manifest.get("manifest_hash", "")).to_lower()
 	if expected_mhash != "":
 		if payload.sha256_text().to_lower() != expected_mhash:
+			_log("Security FAIL: manifest_hash mismatch")
 			return false
 
 	var sig_b64 := str(manifest.get("signature_rsa", ""))
@@ -295,14 +367,14 @@ func verify_manifest_security(manifest: Dictionary) -> bool:
 			var crypto := Crypto.new()
 			var sig_raw := Marshalls.base64_to_raw(sig_b64)
 			if not crypto.verify(HashingContext.HASH_SHA256, payload.sha256_buffer(), sig_raw, pub_key):
+				_log("Security FAIL: RSA-2048 signature invalid")
 				return false
 	return true
 
 
 func _evaluate_manifest(manifest: Dictionary) -> void:
 	if not verify_manifest_security(manifest):
-		status_text = "v%s (неверная подпись манифеста)" % current_version
-		update_finished.emit(false, current_version, "Ошибка проверки цифровой подписи манифеста — обновление отклонено")
+		_fail_update("Ошибка проверки цифровой подписи манифеста — обновление отклонено")
 		return
 
 	var remote_ver := str(manifest.get("version", current_version))
@@ -310,6 +382,10 @@ func _evaluate_manifest(manifest: Dictionary) -> void:
 	var min_apk := int(manifest.get("min_apk_build", APK_BUILD_NUMBER))
 	var need_apk := bool(manifest.get("requires_apk_update", false)) or (min_apk > APK_BUILD_NUMBER)
 	var remote_sha := str(manifest.get("sha256", "")).to_lower()
+
+	_log("Manifest evaluated: remote=v%s(#%d) local=v%s(#%d) min_apk=%d need_apk=%s" % [
+		remote_ver, remote_build, current_version, current_build, min_apk, need_apk
+	])
 
 	if need_apk:
 		var reason := str(manifest.get("apk_update_reason", ""))
@@ -319,15 +395,18 @@ func _evaluate_manifest(manifest: Dictionary) -> void:
 		else:
 			msg += " (изменились нативные компоненты Android)"
 		status_text = msg
+		last_error = msg
 		apk_update_required.emit(manifest, msg)
-		update_finished.emit(false, current_version, msg)
 		return
 
 	if remote_build <= current_build and (remote_sha == "" or remote_sha == active_sha256.to_lower()):
-		status_text = "v%s (обновлений нет)" % current_version
-		update_finished.emit(false, current_version, "Установлена последняя версия v%s" % current_version)
+		var ok_msg := "Установлена последняя версия"
+		status_text = "v%s (сборка #%d) · %s" % [current_version, current_build, ok_msg]
+		_log("Already up to date: " + status_text)
+		update_up_to_date.emit(current_version, current_build, ok_msg)
 		return
 
+	_log("New update found! Starting download for v%s (#%d)" % [remote_ver, remote_build])
 	update_available.emit(manifest)
 	_tried_fallback_pck = false
 	_start_pck_download(manifest, str(manifest.get("pck_url", "")))
@@ -335,37 +414,42 @@ func _evaluate_manifest(manifest: Dictionary) -> void:
 
 func _start_pck_download(manifest: Dictionary, url_to_use: String) -> void:
 	if url_to_use == "":
-		status_text = "v%s (нет ссылки на патч)" % current_version
-		update_finished.emit(false, current_version, "В манифесте не указан pck_url")
+		_fail_update("В манифесте не указан pck_url")
 		return
 	_target_manifest = manifest
 	if FileAccess.file_exists(TEMP_PCK):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(TEMP_PCK))
 	_pck_req.download_file = TEMP_PCK
 	is_downloading = true
+	_last_req_url = url_to_use
 	set_process(true)
-	var err := _pck_req.request(url_to_use)
+	_log("Downloading PCK: " + url_to_use)
+	var err := _pck_req.request(url_to_use, PackedStringArray([
+		"Accept: application/octet-stream",
+		"User-Agent: RussianZombieSurvival-Android/1.0",
+	]))
 	if err != OK:
 		is_downloading = false
 		set_process(false)
-		status_text = "v%s (ошибка загрузки)" % current_version
-		update_finished.emit(false, current_version, "Не удалось начать загрузку патча")
+		_fail_update("Не удалось начать загрузку патча (код %d)" % err)
 
 
 func _on_pck_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	is_downloading = false
 	set_process(false)
 	_pck_req.download_file = ""
+	_log("PCK HTTP done: url=%s result=%d code=%d" % [_last_req_url, result, response_code])
 	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+		var dl_err := _http_error_reason(result, response_code)
 		if FileAccess.file_exists(TEMP_PCK):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(TEMP_PCK))
 		var fb_url := str(_target_manifest.get("fallback_pck_url", ""))
 		if not _tried_fallback_pck and fb_url != "" and fb_url != str(_target_manifest.get("pck_url", "")):
 			_tried_fallback_pck = true
+			_log("Primary PCK failed (%s) — trying fallback: %s" % [dl_err, fb_url])
 			_start_pck_download(_target_manifest, fb_url)
 			return
-		status_text = "v%s (сбой сети при загрузке)" % current_version
-		update_finished.emit(false, current_version, "Сбой загрузки — сохранена рабочая версия v%s" % current_version)
+		_fail_update("Ошибка загрузки патча: " + dl_err)
 		return
 	apply_downloaded_patch(TEMP_PCK, _target_manifest)
 
@@ -375,8 +459,7 @@ func apply_downloaded_patch(temp_path: String, manifest: Dictionary) -> bool:
 	if not verify_manifest_security(manifest):
 		if FileAccess.file_exists(temp_path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
-		status_text = "Ошибка подписи манифеста — сохранена v%s" % current_version
-		update_finished.emit(false, current_version, "Подпись манифеста недействительна — сохранена рабочая версия")
+		_fail_update("Подпись манифеста недействительна — сохранена рабочая версия")
 		return false
 
 	var expected_sha := str(manifest.get("sha256", "")).to_lower()
@@ -387,11 +470,9 @@ func apply_downloaded_patch(temp_path: String, manifest: Dictionary) -> bool:
 	if not verify_pck_file(temp_path, expected_sha, expected_size):
 		if FileAccess.file_exists(temp_path):
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
-		status_text = "Ошибка проверки патча — сохранена v%s" % current_version
-		update_finished.emit(false, current_version, "Проверка целостности (SHA-256) не пройдена — сохранена рабочая версия")
+		_fail_update("Проверка целостности патча (SHA-256 / размер) не пройдена")
 		return false
 
-	# Back up the previous working PCK before replacing it.
 	var prev_ver := current_version
 	var prev_build := current_build
 	var prev_sha := active_sha256
@@ -400,12 +481,10 @@ func apply_downloaded_patch(temp_path: String, manifest: Dictionary) -> bool:
 
 	var final_pck := "%s/patch_%s_%d.pck" % [PATCH_DIR, new_ver.replace(".", "_"), new_build]
 	if not _copy_file(temp_path, final_pck):
-		status_text = "Ошибка записи патча — сохранена v%s" % current_version
-		update_finished.emit(false, current_version, "Не удалось сохранить файл патча")
+		_fail_update("Не удалось сохранить файл патча на устройство")
 		return false
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(temp_path))
 
-	# Write state with boot_pending=true before mounting the pack.
 	_save_state({
 		"version": new_ver,
 		"build_number": new_build,
@@ -422,10 +501,9 @@ func apply_downloaded_patch(temp_path: String, manifest: Dictionary) -> bool:
 
 	if not ProjectSettings.load_resource_pack(final_pck, true):
 		_rollback_to_backup("Ошибка подключения PCK")
-		update_finished.emit(false, current_version, "Не удалось применить PCK — выполнен откат к рабочей версии")
+		_fail_update("Не удалось применить PCK — выполнен откат к рабочей версии")
 		return false
 
-	# Reload any modified scripts, shaders, resources, or scenes listed in the manifest.
 	var changed_files: Array = manifest.get("changed_files", [])
 	for f in changed_files:
 		var path := str(f)
@@ -436,14 +514,15 @@ func apply_downloaded_patch(temp_path: String, manifest: Dictionary) -> bool:
 	current_build = new_build
 	active_pck_path = final_pck
 	active_sha256 = expected_sha if expected_sha != "" else FileAccess.get_sha256(final_pck)
+	last_error = ""
 	confirm_boot_ok()
-	status_text = "Обновлено до v%s (#%d)" % [current_version, current_build]
+	status_text = "v%s (сборка #%d) · Обновлено" % [current_version, current_build]
+	_log("Patch applied successfully: version=%s build=%d file=%s" % [current_version, current_build, final_pck])
 	update_progress.emit(100.0, expected_size, expected_size, current_version)
-	update_finished.emit(true, current_version, "Обновление v%s успешно установлено!" % current_version)
+	update_finished.emit(true, current_version, "Обновление v%s (сборка #%d) успешно установлено!" % [current_version, current_build])
 	return true
 
 
-## Validates a `.pck` file: exists, non-empty, matches `expected_size`, starts with `GDPC` magic bytes, and matches `expected_sha256`.
 func verify_pck_file(path: String, expected_sha256 := "", expected_size := 0) -> bool:
 	if not FileAccess.file_exists(path):
 		return false
