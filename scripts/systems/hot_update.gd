@@ -17,8 +17,8 @@ signal apk_update_required(manifest: Dictionary, message: String)
 
 const BASE_VERSION := "0.5.1"
 const APK_BUILD_NUMBER := 500
-const DEFAULT_MANIFEST_URL := "https://russian-zombie-survival.pages.dev/manifest.json"
-const FALLBACK_MANIFEST_URL := "https://github.com/soyibjonovfayzulo-code/fayzulo-uchun-/releases/latest/download/manifest.json"
+const DEFAULT_MANIFEST_URL := "https://github.com/soyibjonovfayzulo-code/fayzulo-uchun-/releases/latest/download/manifest.json"
+const FALLBACK_MANIFEST_URL := "https://russian-zombie-survival.pages.dev/manifest.json"
 const PUB_KEY_PATH := "res://launcher/update_pub.key"
 const UpdateWindowScript := preload("res://scripts/ui/update_window.gd")
 const CONFIG_PATH := "user://update_config.cfg"

@@ -44,7 +44,7 @@
   "res://scripts/systems/game_options.gd": "e945f32f3c3ff4e2d25dbde8b0e7749bc731285d0ddeff886d06dd26fc084c3e",
   "res://scripts/systems/game_settings.gd": "5787fca4be0d5a5d9fc41713352b73bc5a17471cb2d617c074eaff63ad6663db",
   "res://scripts/systems/game_time.gd": "df0940f2d5863ddd43ac6404dcad4514f2df42ef2e560cd8a98215dc156745a5",
-  "res://scripts/systems/hot_update.gd": "e9df007024bb4b5cb3173fe67e1d84d3d58c65f4987319962f9419dc1d6cbbfb",
+  "res://scripts/systems/hot_update.gd": "b3085202f736b39b3243e6d4c8980bde2887e69c4b14fd8b162b6ea1642acb59",
   "res://scripts/systems/item_db.gd": "bed8098958666d47216f38534f03c8ae703daf7f5bead819bf9e6de53e17970e",
   "res://scripts/systems/live_debug.gd": "955ad472ca12d00fad8abd53338ea9644075bc5c9daea63b2e5fc1e84df347a3",
   "res://scripts/systems/main.gd": "86bb56dc3b214e6feb528957677c3609436c2862a97ac8a51b66db0b4caa3eb5",

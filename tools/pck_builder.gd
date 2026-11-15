@@ -182,11 +182,7 @@ func _sign_string(payload: String, priv_key_path: String) -> String:
 		err = key.load_from_string(env_pem, false)
 	elif FileAccess.file_exists(_abs(priv_key_path)):
 		err = key.load(_abs(priv_key_path), false)
-	elif FileAccess.file_exists(_abs(PUB_KEY_PATH)):
-		# If no private key exists locally yet, generate a pair once
-		_generate_keys()
-		err = key.load(_abs(DEFAULT_PRIV_KEY_PATH), false)
-	else:
+	elif not FileAccess.file_exists(_abs(PUB_KEY_PATH)):
 		_generate_keys()
 		err = key.load(_abs(DEFAULT_PRIV_KEY_PATH), false)
 	if err != OK:
